@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buat / Edit Campaign — DonasiKita</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Formulir Campaign</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/dashboard_fundraiser.html" class="nav-link">Dashboard Saya</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="section">
+    <div class="container container-narrow">
+      <div style="margin-bottom: 16px;">
+        <a href="/pages/dashboard_fundraiser.html" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13.5px; color: var(--color-primary-800); text-decoration: none;">
+          ← Kembali ke Dashboard Fundraiser
+        </a>
+      </div>
+
+      <div class="form-card">
+        <div style="margin-bottom: 24px;">
+          <h1 style="font-size: 24px; font-weight: 800; color: var(--color-primary-900);" id="formHeading">
+            Buat Program Penggalangan Dana
+          </h1>
+          <p style="font-size: 14px; color: var(--color-text-muted); margin-top: 4px;">
+            Lengkapi rincian program Anda dengan jelas dan jujur. Program baru akan ditinjau oleh admin DonasiKita sebelum dipublikasikan.
+          </p>
+        </div>
+
+        <form id="campaignForm" onsubmit="handleFormSubmit(event)">
+          <input type="hidden" id="editCampaignId">
+
+          <!-- Judul -->
+          <div class="form-group">
+            <label class="form-label" for="campTitle">Judul Campaign</label>
+            <input type="text" id="campTitle" class="form-control" placeholder="Contoh: Bantu Biaya Operasi Jantung Dek Rayyan" minlength="10" required>
+            <div class="form-hint">Buat judul yang ringkas, menyentuh, dan jelas (minimal 10 karakter).</div>
+          </div>
+
+          <!-- Kategori & Target Row -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="campCategory">Kategori Program</label>
+              <select id="campCategory" class="form-control" required>
+                <option value="">Pilih Kategori...</option>
+                <!-- Populated via JS -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="campTarget">Target Donasi (Rp)</label>
+              <input type="number" id="campTarget" class="form-control" min="100000" step="50000" placeholder="Contoh: 50000000" required>
+              <div class="form-hint">Minimal target donasi Rp100.000.</div>
+            </div>
+          </div>
+
+          <!-- Tenggat Waktu & Foto Banner -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="campDeadline">Tenggat Waktu Penggalangan</label>
+              <input type="date" id="campDeadline" class="form-control" required>
+              <div class="form-hint">Batas akhir penerimaan donasi.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="campImageSelect">Pilih Foto Banner / Sampul</label>
+              <select id="campImageSelect" class="form-control" onchange="previewSelectedImage(this)">
+                <option value="campaign_rayyan.jpg">Banner Medis Anak (Rayyan)</option>
+                <option value="campaign_santri.jpg">Banner Santri & Panti Asuhan</option>
+                <option value="campaign_jembatan.jpg">Banner Pendidikan & Jembatan Pelosok</option>
+                <option value="campaign_banjir.jpg">Banner Tanggap Darurat Bencana</option>
+                <option value="campaign_sumur.jpg">Banner Sarana Air Bersih & MCK</option>
+                <option value="campaign_gerobak.jpg">Banner Modal Usaha Gerobak</option>
+                <option value="campaign_default.jpg">Banner Umum DonasiKita</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Image Preview -->
+          <div style="margin-bottom: 20px; text-align: center;">
+            <img src="/assets/images/campaign_rayyan.jpg" id="bannerPreview" style="width: 100%; height: 200px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border);" onerror="this.src='/assets/images/campaign_default.jpg'">
+          </div>
+
+          <!-- Deskripsi Singkat -->
+          <div class="form-group">
+            <label class="form-label" for="campShortDesc">Ringkasan / Deskripsi Singkat</label>
+            <textarea id="campShortDesc" class="form-control" rows="2" placeholder="Jelaskan kebutuhan mendesak penerima manfaat dalam 1-2 kalimat..." minlength="20" required></textarea>
+            <div class="form-hint">Akan tampil pada kartu katalog program (minimal 20 karakter).</div>
+          </div>
+
+          <!-- Cerita Lengkap -->
+          <div class="form-group">
+            <label class="form-label" for="campStory">Cerita Lengkap & Kebutuhan Penerima Manfaat</label>
+            <textarea id="campStory" class="form-control" rows="8" placeholder="Ceritakan latar belakang, kondisi penerima manfaat, rincian biaya yang dibutuhkan, serta harapan keluarga..." minlength="50" required></textarea>
+            <div class="form-hint">Cerita yang transparan dan rinci meningkatkan kepercayaan donatur (minimal 50 karakter).</div>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div style="display: flex; gap: 12px; margin-top: 24px;">
+            <a href="/pages/dashboard_fundraiser.html" class="btn btn-secondary" style="flex: 1;">
+              Batal
+            </a>
+            <button type="submit" class="btn btn-primary" id="btnSubmitForm" style="flex: 2;">
+              Kirim Program untuk Kurasi
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let isEditMode = false;
+    let editId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.guard(['fundraiser', 'admin'])) return;
+      await Auth.initNavbar();
+
+      await loadCategoriesDropdown();
+
+      // Set min date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('campDeadline').min = tomorrow.toISOString().split('T')[0];
+      // Default date: 30 days ahead
+      const nextMonth = new Date();
+      nextMonth.setDate(nextMonth.getDate() + 30);
+      document.getElementById('campDeadline').value = nextMonth.toISOString().split('T')[0];
+
+      // Check if edit mode
+      editId = Utils.getQueryParam('id');
+      if (editId) {
+        isEditMode = true;
+        document.getElementById('formHeading').innerText = "Edit Program Campaign";
+        document.getElementById('btnSubmitForm').innerText = "Simpan Perubahan Campaign";
+        await loadCampaignForEdit(editId);
+      }
+    });
+
+    async function loadCategoriesDropdown() {
+      try {
+        const res = await API.getCategories();
+        if (res.success && res.categories) {
+          const select = document.getElementById('campCategory');
+          res.categories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.innerText = c.name;
+            select.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadCampaignForEdit(id) {
+      try {
+        const res = await API.getCampaignDetail(id);
+        if (!res.success) {
+          Utils.showToast("Campaign tidak ditemukan.", "error");
+          return;
+        }
+
+        const c = res.campaign;
+        document.getElementById('editCampaignId').value = c.id;
+        document.getElementById('campTitle').value = c.title;
+        document.getElementById('campCategory').value = c.category_id;
+        document.getElementById('campTarget').value = c.target_amount;
+        document.getElementById('campDeadline').value = c.deadline_date;
+        document.getElementById('campShortDesc').value = c.short_description;
+        document.getElementById('campStory').value = c.story;
+
+        // Image select
+        if (c.image_url) {
+          document.getElementById('campImageSelect').value = c.image_url;
+          document.getElementById('bannerPreview').src = `/assets/images/${c.image_url}`;
+        }
+
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function previewSelectedImage(select) {
+      const img = select.value;
+      document.getElementById('bannerPreview').src = `/assets/images/${img}`;
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const token = Auth.getToken();
+
+      const title = document.getElementById('campTitle').value.trim();
+      const catId = document.getElementById('campCategory').value;
+      const target = document.getElementById('campTarget').value;
+      const deadline = document.getElementById('campDeadline').value;
+      const image = document.getElementById('campImageSelect').value;
+      const shortDesc = document.getElementById('campShortDesc').value.trim();
+      const story = document.getElementById('campStory').value.trim();
+
+      const btn = document.getElementById('btnSubmitForm');
+      btn.disabled = true;
+
+      try {
+        let res;
+        if (isEditMode) {
+          res = await API.updateCampaign(token, editId, title, catId, target, deadline, shortDesc, story, image);
+        } else {
+          res = await API.createCampaign(token, title, catId, target, deadline, shortDesc, story, image);
+        }
+
+        if (!res.success) {
+          Utils.showToast(res.message, 'error');
+          btn.disabled = false;
+          return;
+        }
+
+        Utils.showToast(res.message, 'success');
+        setTimeout(() => {
+          window.location.href = "/pages/dashboard_fundraiser.html";
+        }, 800);
+
+      } catch (err) {
+        console.error(err);
+        Utils.showToast("Gagal menyimpan campaign.", 'error');
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+flowchart LR
+    %% Actors
+    Admin(["👑 Administrator"])
+    Fundraiser(["🏢 Penggalang Dana"])
+    Donatur(["💖 Donatur"])
+    Pengunjung(["👤 Pengunjung Umum"])
+
+    subgraph Platform_DonasiKita ["Sistem E-Donation DonasiKita"]
+        %% Public Use Cases
+        UC_Browse["Jelajah & Cari Campaign Aktif"]
+        UC_ViewDetail["Lihat Detail Cerita, Donatur, & Transparansi Dana"]
+        UC_Register["Registrasi Akun Baru (Donatur / Penggalang)"]
+        UC_Login["Autentikasi & Login Sistem"]
+
+        %% Donatur Use Cases
+        UC_Donate["Input Nominal Donasi & Doa Dukungan"]
+        UC_Anon["Atur Opsi Anonim (Hamba Allah)"]
+        UC_SimulatePay["Pilih Metode & Simulasi Pembayaran Elektronik"]
+        UC_HistDon["Lihat Riwayat Donasi Pribadi"]
+        UC_Cert["Akses & Cetak Sertifikat Donasi Digital"]
+
+        %% Fundraiser Use Cases
+        UC_CreateCamp["Buat Program Campaign (Status Pending)"]
+        UC_EditCamp["Ubah & Kelola Campaign Milik Sendiri"]
+        UC_PostUpdate["Publikasikan Kabar Perkembangan Penerima"]
+        UC_FundUsage["Catat Laporan Penggunaan Dana & Bukti"]
+        UC_DashFund["Pantau Dashboard Kinerja Campaign"]
+
+        %% Admin Use Cases
+        UC_ApproveCamp["Kurasi, Setujui, atau Tolak Campaign Pending"]
+        UC_ManageUser["Kelola & Audit Status Pengguna (Aktif / Suspend)"]
+        UC_AuditTx["Pantau Seluruh Transaksi Donasi Platform"]
+        UC_ExportCSV["Ekspor Laporan Transaksi ke CSV / Excel"]
+        UC_DashAdmin["Pantau Metrik Platform & Distribusi Dana"]
+    end
+
+    %% Actor Connections
+    Pengunjung --> UC_Browse
+    Pengunjung --> UC_ViewDetail
+    Pengunjung --> UC_Register
+    Pengunjung --> UC_Login
+
+    Donatur --> UC_Browse
+    Donatur --> UC_ViewDetail
+    Donatur --> UC_Donate
+    Donatur --> UC_Anon
+    Donatur --> UC_SimulatePay
+    Donatur --> UC_HistDon
+    Donatur --> UC_Cert
+
+    Fundraiser --> UC_CreateCamp
+    Fundraiser --> UC_EditCamp
+    Fundraiser --> UC_PostUpdate
+    Fundraiser --> UC_FundUsage
+    Fundraiser --> UC_DashFund
+
+    Admin --> UC_ApproveCamp
+    Admin --> UC_ManageUser
+    Admin --> UC_AuditTx
+    Admin --> UC_ExportCSV
+    Admin --> UC_DashAdmin

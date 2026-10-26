@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sertifikat Donasi Digital — DonasiKita</title>
+  <meta name="description" content="Sertifikat penghargaan resmi donatur digital dari platform DonasiKita.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/certificate.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <div class="certificate-body-wrap">
+
+    <!-- Action Toolbar (Hidden when printing) -->
+    <div class="certificate-toolbar">
+      <button type="button" class="btn btn-primary" onclick="window.print()">
+        🖨️ Cetak / Simpan Sebagai PDF
+      </button>
+      <a href="/index.html" class="btn btn-secondary">
+        ← Kembali ke Beranda
+      </a>
+      <a href="/pages/dashboard_donatur.html" class="btn btn-secondary">
+        Riwayat Donasi Saya
+      </a>
+    </div>
+
+    <!-- Certificate Paper Sheet -->
+    <div class="certificate-paper" id="certificatePaper">
+      <div class="cert-border-outer">
+        <div class="cert-border-inner">
+
+          <!-- Watermark -->
+          <div class="cert-watermark">DONASIKITA</div>
+
+          <!-- Header -->
+          <div class="cert-header">
+            <div class="cert-brand-title">🌿 DONASIKITA INDONESIA</div>
+            <div class="cert-main-title">SERTIFIKAT PENGHARGAAN</div>
+            <div class="cert-sub-text">Bukti Kedermawanan & Partisipasi Penggalangan Dana Sosial</div>
+            <div class="cert-number-badge" id="certNumberDisplay">No: DK-CERT/202610/0000</div>
+          </div>
+
+          <!-- Recipient -->
+          <div class="cert-recipient-intro">Sertifikat ini dengan bangga dan tulus dianugerahkan kepada:</div>
+          <div class="cert-recipient-name" id="certRecipientName">Nama Donatur</div>
+
+          <!-- Statement -->
+          <p class="cert-statement">
+            Atas kepedulian, keikhlasan, dan kedermawanan luar biasa dalam menyalurkan bantuan pada program sosial kemanusiaan:
+          </p>
+
+          <div style="margin: 10px 0;">
+            <span class="cert-highlight-campaign" style="font-size: 16px;" id="certCampaignTitle">
+              Judul Program Donasi
+            </span>
+          </div>
+
+          <div class="cert-nominal-box">
+            <div class="cert-nominal-label">Nominal Donasi Terverifikasi</div>
+            <div class="cert-nominal-val" id="certNominalVal">Rp0</div>
+          </div>
+
+          <p style="font-size: 12.5px; color: #6b7280; margin-top: 14px; max-width: 620px;">
+            Semoga setiap rupiah kebaikan yang Anda titipkan menjadi amal jariyah yang membawa keberkahan, meringankan beban sesama, dan menginspirasi lebih banyak orang untuk berbagi.
+          </p>
+
+          <!-- Footer & Signatures -->
+          <div class="cert-footer-grid">
+            <div class="cert-qr-block">
+              <div class="cert-qr-seal" style="width: 68px; height: 68px; background: #faf9f6; border: 1.5px solid #1b4332; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.06);">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1b4332" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="m9 12 2 2 4-4"/>
+                </svg>
+                <span style="font-size: 8.5px; font-weight: 800; color: #1b4332; letter-spacing: 0.5px; margin-top: 2px;">VERIFIED</span>
+              </div>
+              <div class="cert-qr-info">
+                <div><strong>Verifikasi Digital Resmi:</strong></div>
+                <div style="font-family: monospace; font-size: 11px; color: #1b4332; font-weight: 700;" id="certVerifCode">VERIF-CODE-0000</div>
+                <div id="certIssueDate">Diterbitkan: -</div>
+              </div>
+            </div>
+
+            <div class="cert-sign-col">
+              <div style="font-size: 11px; color: #6b7280;">Diterbitkan Oleh:</div>
+              <div class="cert-sign-line"></div>
+              <div class="cert-sign-name">Tim Kurasi DonasiKita</div>
+              <div class="cert-sign-title">Direktur Eksekutif Program</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const certNo = Utils.getQueryParam('cert');
+      const donCode = Utils.getQueryParam('code');
+
+      if (!certNo && !donCode) {
+        Utils.showToast("Parameter sertifikat tidak ditemukan.", "error");
+        return;
+      }
+
+      await loadCertificate(certNo, donCode);
+    });
+
+    async function loadCertificate(certNo, donCode) {
+      try {
+        let res;
+        if (certNo) {
+          res = await API.getCertificateDetail(certNo);
+        } else {
+          res = await API.getCertificateByDonationCode(donCode);
+        }
+
+        if (!res.success) {
+          document.getElementById('certificatePaper').innerHTML = `
+            <div style="text-align: center; padding: 100px 20px; color: var(--color-danger);">
+              <h2>⚠️ Sertifikat Tidak Tersedia</h2>
+              <p style="margin-top: 10px;">${res.message}</p>
+              <a href="/index.html" class="btn btn-primary btn-sm" style="margin-top: 20px;">Kembali ke Beranda</a>
+            </div>
+          `;
+          return;
+        }
+
+        const cert = res.certificate;
+        document.title = `Sertifikat ${cert.certificate_number} — DonasiKita`;
+        document.getElementById('certNumberDisplay').innerText = `Nomor: ${cert.certificate_number}`;
+        document.getElementById('certRecipientName').innerText = cert.donor_name_display;
+        document.getElementById('certCampaignTitle').innerText = cert.campaign_title;
+        document.getElementById('certNominalVal').innerText = Utils.formatRupiah(cert.amount);
+        document.getElementById('certVerifCode').innerText = cert.verification_code;
+        document.getElementById('certIssueDate').innerText = `Diterbitkan: ${Utils.formatDate(cert.issue_date)}`;
+
+      } catch (err) {
+        console.error("Certificate error:", err);
+      }
+    }
+  </script>
+</body>
+</html>

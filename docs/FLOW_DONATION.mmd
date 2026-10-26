@@ -1,0 +1,43 @@
+flowchart TD
+    Start([Mulai: Donatur Membuka Campaign Aktif]) --> CheckLogin{Apakah Pengguna Sudah Login?}
+    CheckLogin -- Tidak --> RedirectLogin[Arahkan ke Halaman Login / Registrasi]
+    RedirectLogin --> AuthSuccess[Login Berhasil] --> InputNominal
+    CheckLogin -- Ya --> InputNominal[Input Nominal Donasi & Pilih Opsi Anonim / Doa]
+
+    InputNominal --> ValidateNominal{Validasi Nominal >= Rp 10.000?}
+    ValidateNominal -- Tidak --> ShowErrorNominal[Tampilkan Peringatan: Minimal Donasi Rp 10.000]
+    ShowErrorNominal --> InputNominal
+
+    ValidateNominal -- Ya --> CheckCampStatus{Status Campaign Aktif & Belum Expired?}
+    CheckCampStatus -- Tidak --> ShowErrorCamp[Tolak Transaksi: Campaign Tidak Menerima Donasi]
+    ShowErrorCamp --> End([Selesai])
+
+    CheckCampStatus -- Ya --> SelectMethod[Pilih Metode Pembayaran Simulasi: Bank VA / QRIS / E-Wallet]
+    SelectMethod --> CreatePending[Sistem Membuat Record donations & payments Berstatus 'pending']
+    CreatePending --> DisplaySimPage[Tampilkan Halaman SIMULASI PEMBAYARAN dengan Kode Unik & Instruksi]
+
+    DisplaySimPage --> SimAction{Donatur Memilih Aksi Simulasi}
+
+    %% Simulation Branch: Success
+    SimAction -- Klik 'Simulasikan Berhasil' --> CheckIdempotencySuccess{Sudah Berstatus Sukses Sebelumnya?}
+    CheckIdempotencySuccess -- Ya --> SkipAdd[Cegah Duplikasi: Jangan Tambah Saldo Lagi] --> ShowResultSuccess
+    CheckIdempotencySuccess -- Tidak --> DBTransaction[Mulai Transaksi Database (START TRANSACTION)]
+    
+    DBTransaction --> UpdatePaySuccess[Update payments: payment_status = 'success', paid_at = NOW()]
+    UpdatePaySuccess --> UpdateDonSuccess[Update donations: status = 'success']
+    UpdateDonSuccess --> IncrementCampBalance[Update campaigns: collected_amount = collected_amount + nominal]
+    IncrementCampBalance --> IssueCert[Insert ke tabel certificates: Terbitkan Sertifikat Digital Unik]
+    IssueCert --> CommitTx[COMMIT Transaksi Database]
+    CommitTx --> ShowResultSuccess[Tampilkan Halaman Hasil: Pembayaran SUKSES & Tombol Sertifikat]
+
+    %% Simulation Branch: Failed
+    SimAction -- Klik 'Simulasikan Gagal' --> CheckIdempotencyFailed{Sudah Diproses Sebelumnya?}
+    CheckIdempotencyFailed -- Ya --> SkipFail[Tetap Berstatus Gagal Tanpa Perubahan] --> ShowResultFailed
+    CheckIdempotencyFailed -- Tidak --> UpdatePayFailed[Update payments: payment_status = 'failed']
+    UpdatePayFailed --> UpdateDonFailed[Update donations: status = 'failed']
+    UpdateDonFailed --> KeepBalance[SALDO CAMPAIGN TETAP (TIDAK DITAMBAH)]
+    KeepBalance --> ShowResultFailed[Tampilkan Halaman Hasil: Pembayaran GAGAL / Dibatalkan]
+
+    ShowResultSuccess --> ViewCertOption[Donatur Dapat Mengunduh / Mencetak Sertifikat PDF Resmi]
+    ViewCertOption --> End
+    ShowResultFailed --> End

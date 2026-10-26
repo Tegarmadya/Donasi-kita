@@ -1,0 +1,112 @@
+erDiagram
+    users ||--o{ campaigns : "creates / owns"
+    users ||--o{ donations : "makes"
+    categories ||--o{ campaigns : "classifies"
+    campaigns ||--o{ donations : "receives"
+    campaigns ||--o{ campaign_updates : "publishes"
+    campaigns ||--o{ fund_usage_reports : "reports"
+    donations ||--|| payments : "settled_by"
+    donations ||--o| certificates : "generates_if_success"
+
+    users {
+        int id PK "AUTO_INCREMENT"
+        string full_name "VARCHAR(120)"
+        string email UK "VARCHAR(150)"
+        string password_hash "VARCHAR(255) bcrypt"
+        enum role "admin, fundraiser, donatur"
+        string phone "VARCHAR(20)"
+        string avatar "VARCHAR(255)"
+        enum status "active, suspended"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    categories {
+        int id PK "AUTO_INCREMENT"
+        string name "VARCHAR(80)"
+        string slug UK "VARCHAR(100)"
+        string description "VARCHAR(255)"
+        string icon "VARCHAR(50)"
+        tinyint is_active "TINYINT(1)"
+        timestamp created_at
+    }
+
+    campaigns {
+        int id PK "AUTO_INCREMENT"
+        int user_id FK "REFERENCES users(id)"
+        int category_id FK "REFERENCES categories(id)"
+        string title "VARCHAR(200)"
+        string slug UK "VARCHAR(220)"
+        string short_description "VARCHAR(300)"
+        text story "LONGTEXT"
+        decimal target_amount "DECIMAL(15,2)"
+        decimal collected_amount "DECIMAL(15,2)"
+        date deadline_date "DATE"
+        string image_url "VARCHAR(255)"
+        enum status "draft, pending, active, rejected, completed"
+        text rejection_reason "TEXT"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    donations {
+        int id PK "AUTO_INCREMENT"
+        string donation_code UK "VARCHAR(50)"
+        int campaign_id FK "REFERENCES campaigns(id)"
+        int user_id FK "REFERENCES users(id)"
+        string donor_name "VARCHAR(120)"
+        string donor_email "VARCHAR(150)"
+        decimal amount "DECIMAL(15,2)"
+        tinyint is_anonymous "TINYINT(1) 0/1"
+        text prayer_message "TEXT"
+        enum status "pending, success, failed, expired"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    payments {
+        int id PK "AUTO_INCREMENT"
+        string payment_code UK "VARCHAR(50)"
+        int donation_id FK "REFERENCES donations(id) UNIQUE"
+        enum payment_method "bank_transfer, qris, ewallet"
+        string payment_channel "VARCHAR(50)"
+        enum payment_status "pending, success, failed"
+        string payment_reference "VARCHAR(100)"
+        text instructions "TEXT"
+        timestamp paid_at "NULL / TIMESTAMP"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    campaign_updates {
+        int id PK "AUTO_INCREMENT"
+        int campaign_id FK "REFERENCES campaigns(id)"
+        string title "VARCHAR(200)"
+        text content "LONGTEXT"
+        string image_url "VARCHAR(255)"
+        timestamp created_at
+    }
+
+    fund_usage_reports {
+        int id PK "AUTO_INCREMENT"
+        int campaign_id FK "REFERENCES campaigns(id)"
+        string expense_title "VARCHAR(200)"
+        string expense_category "VARCHAR(100)"
+        decimal amount "DECIMAL(15,2)"
+        date expense_date "DATE"
+        text description "TEXT"
+        string proof_document "VARCHAR(255)"
+        timestamp created_at
+    }
+
+    certificates {
+        int id PK "AUTO_INCREMENT"
+        string certificate_number UK "VARCHAR(60)"
+        int donation_id FK "REFERENCES donations(id) UNIQUE"
+        string donor_name_display "VARCHAR(120)"
+        string campaign_title "VARCHAR(200)"
+        decimal amount "DECIMAL(15,2)"
+        date issue_date "DATE"
+        string verification_code UK "VARCHAR(64)"
+        timestamp created_at
+    }

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Administrator — DonasiKita</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Portal Administrator</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/dashboard_admin.html" class="nav-link active">Admin Dashboard</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="section" style="padding-top: 24px;">
+    <div class="container">
+
+      <!-- Admin Header Row -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 800; color: var(--color-primary-900);">
+            Dashboard Administrator DonasiKita
+          </h1>
+          <p style="font-size: 14px; color: var(--color-text-muted);">
+            Pantau statistik platform, kelola kurasi campaign, audit transaksi, dan ekspor laporan resmi.
+          </p>
+        </div>
+
+        <div>
+          <button type="button" class="btn btn-primary" onclick="handleExportCSV()">
+            📥 Ekspor Laporan Donasi (CSV/Excel)
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Stat Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Donasi Terkumpul</div>
+          <div class="kpi-value" id="kpiTotalVolume">Rp0</div>
+          <div class="kpi-sub" id="kpiSuccessCount">0 transaksi sukses</div>
+        </div>
+
+        <div class="kpi-card" style="border-left: 4px solid var(--color-warning);">
+          <div class="kpi-title">Menunggu Verifikasi (Pending)</div>
+          <div class="kpi-value" id="kpiPendingCamps" style="color: var(--color-warning);">0</div>
+          <div class="kpi-sub">Memerlukan kurasi admin</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Campaign Aktif Berjalan</div>
+          <div class="kpi-value" id="kpiActiveCamps">0</div>
+          <div class="kpi-sub" id="kpiTotalCamps">dari 0 total program</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Total Pengguna Terdaftar</div>
+          <div class="kpi-value" id="kpiTotalUsers">0</div>
+          <div class="kpi-sub" id="kpiUserBreakdown">-</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="tab-nav">
+        <button type="button" class="tab-btn active" onclick="switchAdminTab('tabPending', this)">
+          Verifikasi Pending (<span id="tabPendingBadge">0</span>)
+        </button>
+        <button type="button" class="tab-btn" onclick="switchAdminTab('tabCampaigns', this)">
+          Seluruh Campaign
+        </button>
+        <button type="button" class="tab-btn" onclick="switchAdminTab('tabTransactions', this)">
+          Audit Transaksi Donasi
+        </button>
+        <button type="button" class="tab-btn" onclick="switchAdminTab('tabUsers', this)">
+          Manajemen Pengguna
+        </button>
+      </div>
+
+      <!-- Tab 1: Pending Campaigns for Verification -->
+      <div class="tab-pane active" id="tabPending">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Judul Campaign</th>
+                <th>Penggalang Dana</th>
+                <th>Target Donasi</th>
+                <th>Tenggat Waktu</th>
+                <th>Aksi Verifikasi</th>
+              </tr>
+            </thead>
+            <tbody id="pendingCampaignsTbody">
+              <tr><td colspan="6" style="text-align: center; padding: 30px;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 2: All Campaigns -->
+      <div class="tab-pane" id="tabCampaigns">
+        <div style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+          <label style="font-size: 13.5px; font-weight: 600;">Filter Status:</label>
+          <select class="filter-select" id="allCampsStatusFilter" onchange="loadAllCampaigns()">
+            <option value="all">Semua Status</option>
+            <option value="active">Aktif</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Selesai</option>
+            <option value="rejected">Ditolak</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Judul Campaign</th>
+                <th>Kategori</th>
+                <th>Terkumpul / Target</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th>Tindakan</th>
+              </tr>
+            </thead>
+            <tbody id="allCampaignsTbody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 3: Transactions Monitoring -->
+      <div class="tab-pane" id="tabTransactions">
+        <div style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <label style="font-size: 13.5px; font-weight: 600;">Status Transaksi:</label>
+            <select class="filter-select" id="txStatusFilter" onchange="loadAllTransactions()">
+              <option value="all">Semua Transaksi</option>
+              <option value="success">Sukses Saja</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Gagal</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="handleExportCSV()">
+            📥 Unduh CSV
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Kode Donasi</th>
+                <th>Donatur</th>
+                <th>Campaign</th>
+                <th>Nominal</th>
+                <th>Metode / Channel</th>
+                <th>Status</th>
+                <th>Sertifikat</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTbody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 4: User Management -->
+      <div class="tab-pane" id="tabUsers">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nama Pengguna</th>
+                <th>Alamat Email</th>
+                <th>Role</th>
+                <th>Status Akun</th>
+                <th>Terdaftar Sejak</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="usersTbody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Reject Reason Modal -->
+  <div class="modal-overlay" id="rejectModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Tolak Pengajuan Campaign</h3>
+        <button type="button" class="modal-close-btn" onclick="closeRejectModal()">&times;</button>
+      </div>
+      <div>
+        <input type="hidden" id="rejectTargetId">
+        <div class="form-group">
+          <label class="form-label" for="rejectReasonInput">Alasan Penolakan (Akan Terlihat oleh Penggalang Dana)</label>
+          <textarea id="rejectReasonInput" class="form-control" rows="4" placeholder="Jelaskan alasan penolakan atau kekurangan dokumen..." required></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Batal</button>
+          <button type="button" class="btn btn-danger" onclick="submitReject()">Tolak Campaign</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — Administrator Dashboard</div>
+        <div>Sistem Audit & Kurasi E-Donation</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Guard admin only
+      if (!Auth.guard(['admin'])) return;
+      await Auth.initNavbar();
+
+      await loadDashboardSummary();
+      await loadAllCampaigns();
+      await loadAllTransactions();
+      await loadAllUsers();
+
+      handleHashNavigation();
+    });
+
+    async function loadDashboardSummary() {
+      const token = Auth.getToken();
+      try {
+        const res = await API.getAdminDashboardSummary(token);
+        if (!res.success) {
+          Utils.showToast(res.message, 'error');
+          return;
+        }
+
+        const s = res.summary;
+        document.getElementById('kpiTotalVolume').innerText = Utils.formatRupiah(s.total_donation_volume);
+        document.getElementById('kpiSuccessCount').innerText = `${s.total_success_count.toLocaleString('id-ID')} transaksi lunas`;
+        document.getElementById('kpiPendingCamps').innerText = s.pending_campaigns;
+        document.getElementById('tabPendingBadge').innerText = s.pending_campaigns;
+        document.getElementById('kpiActiveCamps').innerText = s.active_campaigns;
+        document.getElementById('kpiTotalCamps').innerText = `dari ${s.total_campaigns} total program`;
+        document.getElementById('kpiTotalUsers').innerText = s.total_users;
+        document.getElementById('kpiUserBreakdown').innerText = `${s.donatur_count} donatur, ${s.fundraiser_count} penggalang`;
+
+        // Render pending campaigns list
+        const tbody = document.getElementById('pendingCampaignsTbody');
+        if (!res.pending_campaigns_list || res.pending_campaigns_list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--color-text-muted);">Tidak ada campaign yang sedang menunggu persetujuan.</td></tr>`;
+        } else {
+          tbody.innerHTML = res.pending_campaigns_list.map(pc => `
+            <tr>
+              <td>#${pc.id}</td>
+              <td>
+                <strong><a href="/pages/campaign_detail.html?id=${pc.id}" target="_blank">${pc.title}</a></strong>
+              </td>
+              <td>${pc.organizer_name}</td>
+              <td><strong>${Utils.formatRupiah(pc.target_amount)}</strong></td>
+              <td>${Utils.formatDate(pc.deadline_date)}</td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <button type="button" class="btn btn-success btn-sm" onclick="approveCampaign(${pc.id})">
+                    ✓ Setujui
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm" onclick="openRejectModal(${pc.id})">
+                    ✕ Tolak
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        }
+
+      } catch (err) {
+        console.error("Summary error:", err);
+      }
+    }
+
+    async function loadAllCampaigns() {
+      const token = Auth.getToken();
+      const status = document.getElementById('allCampsStatusFilter').value;
+      try {
+        const res = await API.getAllCampaignsAdmin(token, status);
+        const tbody = document.getElementById('allCampaignsTbody');
+        if (!res.success || !res.campaigns || res.campaigns.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Tidak ada data campaign.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = res.campaigns.map(c => `
+          <tr>
+            <td>#${c.id}</td>
+            <td>
+              <strong><a href="/pages/campaign_detail.html?slug=${c.slug}" target="_blank">${c.title}</a></strong>
+              <div style="font-size: 11px; color: var(--color-text-subtle);">Penggalang: ${c.organizer_name}</div>
+            </td>
+            <td><span class="status-badge" style="background:#e0f2fe; color:#0369a1;">${c.category_name}</span></td>
+            <td>
+              <div>${Utils.formatRupiah(c.collected_amount)}</div>
+              <small style="color:var(--color-text-subtle)">Target: ${Utils.formatRupiah(c.target_amount)}</small>
+            </td>
+            <td><strong>${c.progress_percentage}%</strong></td>
+            <td><span class="status-badge badge-${c.status}">${c.status}</span></td>
+            <td>
+              ${c.status === 'pending' ? `
+                <button class="btn btn-success btn-sm" onclick="approveCampaign(${c.id})">Setujui</button>
+              ` : (c.status === 'active' ? `
+                <button class="btn btn-secondary btn-sm" onclick="completeCampaign(${c.id})">Tandai Selesai</button>
+              ` : `
+                <span style="font-size: 12px; color: var(--color-text-subtle);">-</span>
+              `)}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadAllTransactions() {
+      const token = Auth.getToken();
+      const status = document.getElementById('txStatusFilter').value;
+      try {
+        const res = await API.getAllDonationsAdmin(token, status);
+        const tbody = document.getElementById('transactionsTbody');
+        if (!res.success || !res.donations || res.donations.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Tidak ada transaksi.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = res.donations.map(tx => `
+          <tr>
+            <td><strong style="font-family: monospace;">${tx.donation_code}</strong></td>
+            <td>
+              <div>${tx.is_anonymous ? 'Hamba Allah (Anonim)' : tx.donor_name}</div>
+              <small style="color:var(--color-text-subtle)">${tx.donor_email}</small>
+            </td>
+            <td style="max-width: 220px; font-size: 12.5px;">${tx.campaign_title}</td>
+            <td><strong style="color:var(--color-primary-900);">${Utils.formatRupiah(tx.amount)}</strong></td>
+            <td>${tx.payment_method || '-'} (${tx.payment_channel || '-'})</td>
+            <td><span class="status-badge badge-${tx.status}">${tx.status}</span></td>
+            <td>
+              ${tx.certificate_number ? `
+                <a href="/pages/certificate.html?cert=${tx.certificate_number}" target="_blank" class="btn btn-secondary btn-sm">
+                  📜 Sertifikat
+                </a>
+              ` : '-'}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadAllUsers() {
+      const token = Auth.getToken();
+      try {
+        const res = await API.getAllUsers(token);
+        const tbody = document.getElementById('usersTbody');
+        if (!res.success || !res.users || res.users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px;">Tidak ada pengguna.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = res.users.map(u => `
+          <tr>
+            <td>#${u.id}</td>
+            <td><strong>${u.full_name}</strong></td>
+            <td>${u.email}</td>
+            <td><span class="status-badge" style="background:#f3f4f6; color:#1f2937;">${u.role.toUpperCase()}</span></td>
+            <td><span class="status-badge badge-${u.status}">${u.status}</span></td>
+            <td>${Utils.formatDate(u.created_at)}</td>
+            <td>
+              ${u.role !== 'admin' ? `
+                <button class="btn ${u.status === 'active' ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleUserStatus(${u.id}, '${u.status === 'active' ? 'suspended' : 'active'}')">
+                  ${u.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}
+                </button>
+              ` : `
+                <span style="font-size: 12px; color: var(--color-text-subtle);">Admin Utama</span>
+              `}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function approveCampaign(id) {
+      if (!confirm("Konfirmasi: Setujui campaign ini agar dapat menerima donasi publik?")) return;
+      const token = Auth.getToken();
+      const res = await API.approveCampaign(token, id);
+      Utils.showToast(res.message, res.success ? 'success' : 'error');
+      if (res.success) {
+        await loadDashboardSummary();
+        await loadAllCampaigns();
+      }
+    }
+
+    function openRejectModal(id) {
+      document.getElementById('rejectTargetId').value = id;
+      document.getElementById('rejectReasonInput').value = '';
+      document.getElementById('rejectModal').classList.add('active');
+    }
+
+    function closeRejectModal() {
+      document.getElementById('rejectModal').classList.remove('active');
+    }
+
+    async function submitReject() {
+      const id = document.getElementById('rejectTargetId').value;
+      const reason = document.getElementById('rejectReasonInput').value.trim();
+      if (!reason) {
+        Utils.showToast("Alasan penolakan wajib diisi.", "warning");
+        return;
+      }
+
+      const token = Auth.getToken();
+      const res = await API.rejectCampaign(token, id, reason);
+      Utils.showToast(res.message, res.success ? 'success' : 'error');
+      closeRejectModal();
+      if (res.success) {
+        await loadDashboardSummary();
+        await loadAllCampaigns();
+      }
+    }
+
+    async function completeCampaign(id) {
+      if (!confirm("Tandai program campaign ini telah selesai?")) return;
+      const token = Auth.getToken();
+      const res = await API.completeCampaign(token, id);
+      Utils.showToast(res.message, res.success ? 'success' : 'error');
+      if (res.success) {
+        await loadDashboardSummary();
+        await loadAllCampaigns();
+      }
+    }
+
+    async function toggleUserStatus(userId, newStatus) {
+      const token = Auth.getToken();
+      const res = await API.updateUserStatus(token, userId, newStatus);
+      Utils.showToast(res.message, res.success ? 'success' : 'error');
+      if (res.success) {
+        await loadAllUsers();
+      }
+    }
+
+    async function handleExportCSV() {
+      const token = Auth.getToken();
+      Utils.showToast("Membuat laporan transaksi Excel (CSV)...", "success");
+      try {
+        const res = await API.exportDonationsCSV(token);
+        if (res.success) {
+          // Trigger download directly in browser using blob
+          const blob = new Blob([res.csv_content], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.setAttribute('href', url);
+          link.setAttribute('download', res.file_name);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          Utils.showToast(`Laporan ${res.file_name} berhasil diunduh!`, "success");
+        } else {
+          Utils.showToast(res.message, "error");
+        }
+      } catch (err) {
+        console.error(err);
+        Utils.showToast("Gagal mengekspor laporan.", "error");
+      }
+    }
+
+    function switchAdminTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const pane = document.getElementById(tabId);
+      if (pane) pane.classList.add('active');
+    }
+
+    function handleHashNavigation(forcedTabId) {
+      const hash = forcedTabId || window.location.hash.replace('#', '');
+      if (!hash) return;
+
+      let targetTabId = hash;
+      if (hash === 'kurasi' || hash === 'pending') {
+        targetTabId = 'tabPending';
+      } else if (hash === 'campaigns') {
+        targetTabId = 'tabCampaigns';
+      } else if (hash === 'transactions') {
+        targetTabId = 'tabTransactions';
+      } else if (hash === 'users') {
+        targetTabId = 'tabUsers';
+      }
+
+      const targetBtn = document.querySelector(`.tab-btn[onclick*="${targetTabId}"]`);
+      if (targetBtn) {
+        switchAdminTab(targetTabId, targetBtn);
+        const section = document.getElementById(targetTabId);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+    window.handleHashNavigation = handleHashNavigation;
+    window.addEventListener('hashchange', () => handleHashNavigation());
+  </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Katalog Campaign Donasi — DonasiKita</title>
+  <meta name="description" content="Temukan dan salurkan donasi terbaik Anda pada berbagai program sosial, medis, dan kemanusiaan terverifikasi di DonasiKita.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Amanah & Terpercaya</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link active">Jelajah Campaign</a></li>
+          <li><a href="#catalogCategoryPills" class="nav-link">Kategori</a></li>
+          <li><a href="/index.html#sectionAbout" class="nav-link">Tentang Kami</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <section class="section" style="padding: 40px 0 24px; background-color: var(--color-surface); border-bottom: 1px solid var(--color-border);">
+    <div class="container">
+      <h1 class="section-title" style="font-size: 30px;">Jelajah Program Donasi</h1>
+      <p class="section-subtitle">Pilih program kemanusiaan terverifikasi yang ingin Anda dukung hari ini.</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="section">
+    <div class="container">
+
+      <!-- Category Filter Pills -->
+      <div class="category-pills-bar" id="catalogCategoryPills">
+        <button type="button" class="category-pill active" onclick="setCategoryFilter('all')">Semua Kategori</button>
+      </div>
+
+      <!-- Search and Filter Bar -->
+      <div class="filter-row">
+        <div class="search-input-box">
+          <span class="search-icon-inside">🔍</span>
+          <input type="text" id="searchInput" placeholder="Cari judul campaign atau kata kunci..." oninput="debounceSearch()">
+        </div>
+
+        <select class="filter-select" id="statusFilter" onchange="applyFilters()">
+          <option value="active">Status: Aktif Saja</option>
+          <option value="completed">Status: Selesai</option>
+          <option value="all">Status: Semua Status</option>
+        </select>
+
+        <select class="filter-select" id="sortFilter" onchange="applyFilters()">
+          <option value="newest">Urutan: Paling Baru</option>
+          <option value="urgent">Urutan: Paling Mendesak (Sisa Hari)</option>
+          <option value="popular">Urutan: Terpopuler (Persentase)</option>
+          <option value="oldest">Urutan: Paling Lama</option>
+        </select>
+      </div>
+
+      <!-- Result Count Info -->
+      <div style="font-size: 13.5px; color: var(--color-text-muted); margin-bottom: 20px;" id="resultCountInfo">
+        Menampilkan program donasi...
+      </div>
+
+      <!-- Campaign Grid -->
+      <div class="campaign-grid" id="catalogCampaignGrid">
+        <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--color-text-muted);">
+          Memuat program donasi...
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let currentCategory = 'all';
+    let searchTimeout = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await Auth.initNavbar();
+      
+      // Read URL query params
+      const urlCat = Utils.getQueryParam('category');
+      if (urlCat) currentCategory = urlCat;
+
+      await loadCategories();
+      await applyFilters();
+    });
+
+    async function loadCategories() {
+      try {
+        const res = await API.getCategories();
+        if (res.success && res.categories) {
+          const container = document.getElementById('catalogCategoryPills');
+          container.innerHTML = `
+            <button type="button" class="category-pill ${currentCategory === 'all' ? 'active' : ''}" onclick="setCategoryFilter('all')">
+              Semua Kategori
+            </button>
+          ` + res.categories.map(cat => `
+            <button type="button" class="category-pill ${currentCategory === cat.slug ? 'active' : ''}" onclick="setCategoryFilter('${cat.slug}')">
+              ${cat.name} (${cat.campaign_count})
+            </button>
+          `).join('');
+        }
+      } catch (e) {
+        console.error("Categories error:", e);
+      }
+    }
+
+    function setCategoryFilter(slug) {
+      currentCategory = slug;
+      document.querySelectorAll('#catalogCategoryPills .category-pill').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText.includes(slug) || (slug === 'all' && btn.innerText.includes('Semua'))) {
+          btn.classList.add('active');
+        }
+      });
+      applyFilters();
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        applyFilters();
+      }, 350);
+    }
+
+    async function applyFilters() {
+      const keyword = document.getElementById('searchInput').value.trim();
+      const status = document.getElementById('statusFilter').value;
+      const sortBy = document.getElementById('sortFilter').value;
+
+      const grid = document.getElementById('catalogCampaignGrid');
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: var(--color-text-muted);">
+          Memperbarui daftar campaign...
+        </div>
+      `;
+
+      try {
+        const res = await API.getCampaigns(currentCategory, keyword, status, sortBy);
+        if (!res.success) {
+          Utils.showToast(res.message, 'error');
+          return;
+        }
+
+        const campaigns = res.campaigns;
+        document.getElementById('resultCountInfo').innerText = `Ditemukan ${campaigns.length} program penggalangan dana.`;
+
+        if (campaigns.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px; background-color: var(--color-surface); border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
+              <div style="font-size: 40px; margin-bottom: 12px;">🔍</div>
+              <h3 style="font-size: 18px; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">Campaign Tidak Ditemukan</h3>
+              <p style="font-size: 14px; color: var(--color-text-muted); max-width: 420px; margin: 0 auto 16px;">
+                Tidak ada program yang cocok dengan filter atau kata kunci pencarian Anda. Coba kata kunci lain atau pilih Semua Kategori.
+              </p>
+              <button class="btn btn-primary btn-sm" onclick="resetFilters()">Reset Filter</button>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = campaigns.map(camp => {
+          const thumb = `/assets/images/${camp.image_url || 'campaign_default.jpg'}`;
+          return `
+            <article class="campaign-card">
+              <div class="campaign-card-thumb-wrap">
+                <img src="${thumb}" alt="${camp.title}" class="campaign-card-thumb" onerror="this.src='/assets/images/campaign_default.jpg'">
+                <span class="campaign-card-badge">${camp.category_name}</span>
+              </div>
+              <div class="campaign-card-body">
+                <div class="campaign-card-organizer">
+                  <span>🏢</span> ${camp.organizer_name}
+                </div>
+                <h3 class="campaign-card-title">
+                  <a href="/pages/campaign_detail.html?slug=${camp.slug}">
+                    ${camp.title}
+                  </a>
+                </h3>
+                <p class="campaign-card-desc">
+                  ${camp.short_description}
+                </p>
+                
+                <div class="progress-container">
+                  <div class="progress-track">
+                    <div class="progress-fill" style="width: ${camp.progress_percentage}%;"></div>
+                  </div>
+                  <div class="progress-stats-row">
+                    <span class="progress-collected-num">${Utils.formatRupiah(camp.collected_amount)}</span>
+                    <span class="progress-percent-num">${camp.progress_percentage}%</span>
+                  </div>
+                  <div class="progress-meta-row">
+                    <span>Target: ${Utils.formatRupiah(camp.target_amount)}</span>
+                    <span>${camp.days_left_text || (camp.days_left + ' hari lagi')}</span>
+                  </div>
+                </div>
+
+                <a href="/pages/campaign_detail.html?slug=${camp.slug}" class="btn btn-outline btn-block btn-sm" style="margin-top: 8px;">
+                  Lihat Detail & Donasi
+                </a>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error("Filter error:", err);
+      }
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('statusFilter').value = 'active';
+      document.getElementById('sortFilter').value = 'newest';
+      setCategoryFilter('all');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Penggalang Dana — DonasiKita</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Portal Penggalang Dana</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/dashboard_fundraiser.html" class="nav-link active">Dashboard Saya</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="section" style="padding-top: 24px;">
+    <div class="container">
+
+      <!-- Header Row -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 800; color: var(--color-primary-900);">
+            Dashboard Penggalang Dana
+          </h1>
+          <p style="font-size: 14px; color: var(--color-text-muted);">
+            Kelola program sosial Anda, pantau perolehan donasi, posting kabar terkini, dan laporkan transparansi dana.
+          </p>
+        </div>
+
+        <div>
+          <a href="/pages/campaign_form.html" class="btn btn-accent">
+            ➕ Buat Campaign Baru
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI Summary -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Donasi Terkumpul</div>
+          <div class="kpi-value" id="kpiFundCollected">Rp0</div>
+          <div class="kpi-sub" id="kpiFundTarget">dari total target Rp0</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Total Donasi Diterima</div>
+          <div class="kpi-value" id="kpiFundDonations">0</div>
+          <div class="kpi-sub">transaksi sukses</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Total Dana Tersalurkan</div>
+          <div class="kpi-value" id="kpiFundDisbursed" style="color: var(--color-accent);">Rp0</div>
+          <div class="kpi-sub">transparansi penggunaan</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Sisa Dana Amanah</div>
+          <div class="kpi-value" id="kpiFundRemaining" style="color: var(--color-primary-700);">Rp0</div>
+          <div class="kpi-sub">tersedia untuk penyaluran</div>
+        </div>
+      </div>
+
+      <!-- My Campaigns Table -->
+      <div style="background-color: var(--color-surface); border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 24px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 style="font-size: 18px; font-weight: 700; color: var(--color-primary-900);">Program Campaign Saya</h2>
+          <span style="font-size: 13px; color: var(--color-text-muted);" id="myCampsCount">0 Campaign</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Judul Campaign</th>
+                <th>Kategori</th>
+                <th>Terkumpul / Target</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th>Tenggat Waktu</th>
+                <th>Aksi Pengelolaan</th>
+              </tr>
+            </thead>
+            <tbody id="myCampaignsTbody">
+              <tr><td colspan="7" style="text-align: center; padding: 40px;">Memuat program Anda...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modal: Post Campaign Update -->
+  <div class="modal-overlay" id="updateModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Publikasikan Kabar Terbaru</h3>
+        <button type="button" class="modal-close-btn" onclick="closeUpdateModal()">&times;</button>
+      </div>
+      <form onsubmit="handlePostUpdate(event)">
+        <input type="hidden" id="updateCampId">
+        <div class="form-group">
+          <label class="form-label">Judul Kabar Perkembangan</label>
+          <input type="text" id="updateTitleInput" class="form-control" placeholder="Contoh: Kondisi Terkini Pasca Operasi / Penyaluran Tahap 1" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Isi Berita / Perkembangan</label>
+          <textarea id="updateContentInput" class="form-control" rows="5" placeholder="Ceritakan kondisi penerima manfaat dan rasa terima kasih kepada donatur..." required></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeUpdateModal()">Batal</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitUpdate">Publikasikan Kabar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Report Fund Usage -->
+  <div class="modal-overlay" id="usageModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Lapor Penggunaan Dana (Transparansi)</h3>
+        <button type="button" class="modal-close-btn" onclick="closeUsageModal()">&times;</button>
+      </div>
+      <form onsubmit="handlePostUsage(event)">
+        <input type="hidden" id="usageCampId">
+        <div class="form-group">
+          <label class="form-label">Judul Pengeluaran / Belanja</label>
+          <input type="text" id="usageTitleInput" class="form-control" placeholder="Contoh: Pembelian Obat Khusus / Pembelian Beras 500 Kg" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategori Pengeluaran</label>
+          <select id="usageCategorySelect" class="form-control" required>
+            <option value="Medis & Farmasi">Medis & Farmasi</option>
+            <option value="Pangan & Logistik">Pangan & Logistik</option>
+            <option value="Pendidikan & Sarana">Pendidikan & Sarana</option>
+            <option value="Transportasi & Ambulans">Transportasi & Ambulans</option>
+            <option value="Material Konstruksi">Material Konstruksi</option>
+            <option value="Operasional Lapangan">Operasional Lapangan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nominal Pengeluaran (Rp)</label>
+          <input type="number" id="usageAmountInput" class="form-control" min="1000" step="500" placeholder="Contoh: 3500000" required>
+          <div class="form-hint">Nominal pengeluaran tidak boleh melampaui sisa dana yang berhasil terkumpul.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Transaksi Belanja</label>
+          <input type="date" id="usageDateInput" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keterangan Rinci Penggunaan Dana</label>
+          <textarea id="usageDescInput" class="form-control" rows="3" placeholder="Jelaskan detail barang/jasa yang dibeli serta peruntukannya..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Dokumen / Kuitansi Pendukung</label>
+          <input type="text" id="usageProofInput" class="form-control" placeholder="Contoh: kwitansi_farmasi_01.pdf">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeUsageModal()">Batal</button>
+          <button type="submit" class="btn btn-accent" id="btnSubmitUsage">Simpan Laporan Penggunaan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — Penggalang Dana Dashboard</div>
+        <div>Platform Crowdfunding Terpercaya</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.guard(['fundraiser', 'admin'])) return;
+      await Auth.initNavbar();
+
+      await loadFundraiserData();
+    });
+
+    async function loadFundraiserData() {
+      const token = Auth.getToken();
+      try {
+        // 1. KPI Summary
+        const sumRes = await API.getFundraiserDashboardSummary(token);
+        if (sumRes.success) {
+          const s = sumRes.summary;
+          document.getElementById('kpiFundCollected').innerText = Utils.formatRupiah(s.total_collected);
+          document.getElementById('kpiFundTarget').innerText = `dari total target ${Utils.formatRupiah(s.total_target)}`;
+          document.getElementById('kpiFundDonations').innerText = s.total_donations_received;
+          document.getElementById('kpiFundDisbursed').innerText = Utils.formatRupiah(s.total_disbursed);
+          document.getElementById('kpiFundRemaining').innerText = Utils.formatRupiah(s.remaining_balance);
+        }
+
+        // 2. Campaigns List
+        const campRes = await API.getFundraiserCampaigns(token);
+        const tbody = document.getElementById('myCampaignsTbody');
+        if (!campRes.success || !campRes.campaigns || campRes.campaigns.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px; color: var(--color-text-muted);">
+                Anda belum membuat program campaign. <a href="/pages/campaign_form.html" style="font-weight:700; color:var(--color-primary-800);">Buat Sekarang</a>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const camps = campRes.campaigns;
+        document.getElementById('myCampsCount').innerText = `${camps.length} Campaign`;
+
+        tbody.innerHTML = camps.map(c => `
+          <tr>
+            <td>
+              <strong><a href="/pages/campaign_detail.html?slug=${c.slug}" target="_blank">${c.title}</a></strong>
+              ${c.rejection_reason ? `<div style="font-size:11.5px; color:var(--color-danger); margin-top:2px;">Alasan Tolak: ${c.rejection_reason}</div>` : ''}
+            </td>
+            <td><span class="status-badge" style="background:#e0f2fe; color:#0369a1;">${c.category_name}</span></td>
+            <td>
+              <div><strong>${Utils.formatRupiah(c.collected_amount)}</strong></div>
+              <small style="color:var(--color-text-subtle);">Target: ${Utils.formatRupiah(c.target_amount)}</small>
+            </td>
+            <td><strong>${c.progress_percentage}%</strong></td>
+            <td><span class="status-badge badge-${c.status}">${c.status}</span></td>
+            <td>${Utils.formatDate(c.deadline_date)}</td>
+            <td>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openUpdateModal(${c.id})">
+                  📢 Update
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="openUsageModal(${c.id})">
+                  📋 Lapor Dana
+                </button>
+                <a href="/pages/campaign_form.html?id=${c.id}" class="btn btn-secondary btn-sm">
+                  ✏️ Edit
+                </a>
+                ${c.collected_amount == 0 ? `
+                  <button type="button" class="btn btn-danger btn-sm" onclick="deleteCampaign(${c.id})">
+                    🗑️
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error("Fundraiser data error:", err);
+      }
+    }
+
+    // Modal Updates
+    function openUpdateModal(campId) {
+      document.getElementById('updateCampId').value = campId;
+      document.getElementById('updateTitleInput').value = '';
+      document.getElementById('updateContentInput').value = '';
+      document.getElementById('updateModal').classList.add('active');
+    }
+    function closeUpdateModal() {
+      document.getElementById('updateModal').classList.remove('active');
+    }
+
+    async function handlePostUpdate(e) {
+      e.preventDefault();
+      const token = Auth.getToken();
+      const campId = document.getElementById('updateCampId').value;
+      const title = document.getElementById('updateTitleInput').value.trim();
+      const content = document.getElementById('updateContentInput').value.trim();
+
+      const btn = document.getElementById('btnSubmitUpdate');
+      btn.disabled = true;
+
+      const res = await API.addCampaignUpdate(token, campId, title, content);
+      Utils.showToast(res.message, res.success ? 'success' : 'error');
+      btn.disabled = false;
+      if (res.success) {
+        closeUpdateModal();
+      }
+    }
+
+    // Modal Fund Usage
+    function openUsageModal(campId) {
+      document.getElementById('usageCampId').value = campId;
+      document.getElementById('usageTitleInput').value = '';
+      document.getElementById('usageAmountInput').value = '';
+      document.getElementById('usageDateInput').value = new Date().toISOString().split('T')[0];
+      document.getElementById('usageDescInput').value = '';
+      document.getElementById('usageProofInput').value = 'kwitansi_belanja_' + Math.floor(Math.random()*1000) + '.pdf';
+      document.getElementById('usageModal').classList.add('active');
+    }
+    function closeUsageModal() {
+      document.getElementById('usageModal').classList.remove('active');
+    }
+
+    async function handlePostUsage(e) {
+      e.preventDefault();
+      const token = Auth.getToken();
+      const campId = document.getElementById('usageCampId').value;
+      const title = document.getElementById('usageTitleInput').value.trim();
+      const cat = document.getElementById('usageCategorySelect').value;
+      const amount = document.getElementById('usageAmountInput').value;
+      const dateVal = document.getElementById('usageDateInput').value;
+      const desc = document.getElementById('usageDescInput').value.trim();
+      const proof = document.getElementById('usageProofInput').value.trim();
+
+      const btn = document.getElementById('btnSubmitUsage');
+      btn.disabled = true;
+
+      const res = await API.addFundUsageReport(token, campId, title, cat, amount, dateVal, desc, proof);
+      Utils.showToast(res.message, res.success ? 'success' : 'error');
+      btn.disabled = false;
+      if (res.success) {
+        closeUsageModal();
+        await loadFundraiserData();
+      }
+    }
+
+    async function deleteCampaign(id) {
+      if (!confirm("Apakah Anda yakin ingin menghapus campaign ini?")) return;
+      const token = Auth.getToken();
+      const res = await API.deleteCampaign(token, id);
+      Utils.showToast(res.message, res.success ? 'success' : 'error');
+      if (res.success) {
+        await loadFundraiserData();
+      }
+    }
+  </script>
+</body>
+</html>

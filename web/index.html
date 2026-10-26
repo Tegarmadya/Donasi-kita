@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DonasiKita — Platform E-Donation & E-Crowdfunding Amanah</title>
+  <meta name="description" content="Salurkan bantuan dan donasi terbaik Anda untuk program medis, bencana alam, pendidikan, dan panti asuhan secara transparan bersama DonasiKita.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo" id="brandLogo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Amanah & Terpercaya</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link active">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="#sectionCategories" class="nav-link">Kategori</a></li>
+          <li><a href="#sectionAbout" class="nav-link">Tentang Kami</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions">
+          <a href="/pages/login.html" class="btn btn-secondary btn-sm" id="navBtnLogin">Masuk</a>
+          <a href="/pages/register.html" class="btn btn-primary btn-sm" id="navBtnRegister">Daftar</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-eyebrow">
+            <span>🤝</span> Platform E-Crowdfunding Mahasiswa D3 TI
+          </div>
+          <h1 class="hero-title">
+            Satukan Niat Baik, <span>Nyalakan Harapan</span> Mereka yang Membutuhkan.
+          </h1>
+          <p class="hero-description">
+            DonasiKita menghubungkan para dermawan dengan saudara-saudara kita yang sedang berjuang melawan sakit, terdampak bencana alam, dan membutuhkan sarana pendidikan di pelosok negeri.
+          </p>
+          <div class="hero-actions">
+            <a href="/pages/campaigns.html" class="btn btn-accent btn-lg" id="btnHeroDonate">
+              Donasi Sekarang
+            </a>
+            <a href="/pages/campaign_form.html" class="btn btn-outline btn-lg" id="btnHeroCreate">
+              Galang Dana Bersama Kami
+            </a>
+          </div>
+        </div>
+
+        <!-- Highlight Card -->
+        <div class="hero-card" id="heroFeaturedCard">
+          <div style="font-size: 12px; font-weight: 700; color: var(--color-accent); text-transform: uppercase; margin-bottom: 8px;">
+            🌟 Campaign Pilihan Utama
+          </div>
+          <h3 id="heroCardTitle" style="font-size: 20px; font-weight: 800; color: var(--color-primary-900); margin-bottom: 12px;">
+            Memuat campaign...
+          </h3>
+          <p id="heroCardDesc" style="font-size: 13.5px; color: var(--color-text-muted); margin-bottom: 16px;">
+            Dukungan Anda memberikan arti besar bagi kesembuhan dan masa depan penerima manfaat.
+          </p>
+          <div class="progress-container">
+            <div class="progress-track">
+              <div class="progress-fill" id="heroCardProgressFill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-stats-row">
+              <span class="progress-collected-num" id="heroCardCollected">Rp0</span>
+              <span class="progress-percent-num" id="heroCardPercent">0%</span>
+            </div>
+            <div class="progress-meta-row">
+              <span id="heroCardTarget">Target: Rp0</span>
+              <span id="heroCardDays">0 hari lagi</span>
+            </div>
+          </div>
+          <a href="#" id="heroCardActionBtn" class="btn btn-primary btn-block" style="margin-top: 14px;">
+            Salurkan Donasi
+          </a>
+        </div>
+      </div>
+
+      <!-- Real Database Metrics Strip -->
+      <div class="metrics-strip" id="metricsStrip">
+        <div class="metric-item">
+          <div class="metric-value" id="statTotalVolume">Rp0</div>
+          <div class="metric-label">Total Donasi Terkumpul</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value" id="statSuccessDonations">0</div>
+          <div class="metric-label">Transaksi Berhasil</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value" id="statUniqueDonors">0</div>
+          <div class="metric-label">Donatur Dermawan</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value" id="statActiveCampaigns">0</div>
+          <div class="metric-label">Campaign Aktif Terverifikasi</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="section" id="sectionCategories">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Kategori Kebaikan</h2>
+          <p class="section-subtitle">Pilih bidang sosial yang ingin Anda dukung hari ini.</p>
+        </div>
+        <a href="/pages/campaigns.html" class="btn btn-outline btn-sm">Lihat Semua Kategori</a>
+      </div>
+
+      <div class="category-pills-bar" id="categoryPillsContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Campaigns Section -->
+  <section class="section section-alt" id="sectionFeatured">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Campaign Mendesak & Pilihan</h2>
+          <p class="section-subtitle">Program yang memerlukan uluran tangan dalam waktu dekat.</p>
+        </div>
+        <a href="/pages/campaigns.html" class="btn btn-outline btn-sm">Semua Campaign →</a>
+      </div>
+
+      <div class="campaign-grid" id="featuredCampaignsGrid">
+        <!-- Injected via JavaScript -->
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-muted);">
+          Memuat program donasi pilihan...
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Campaigns Section -->
+  <section class="section" id="sectionRecent">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Campaign Terbaru</h2>
+          <p class="section-subtitle">Program sosial baru yang telah disetujui kurasi admin DonasiKita.</p>
+        </div>
+        <a href="/pages/campaigns.html" class="btn btn-outline btn-sm">Jelajahi Semua</a>
+      </div>
+
+      <div class="campaign-grid" id="recentCampaignsGrid">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Transparency & Trust Section -->
+  <section class="section section-alt" id="sectionAbout">
+    <div class="container">
+      <div class="section-header" style="text-align: center; justify-content: center;">
+        <div>
+          <h2 class="section-title">Mengapa Memilih DonasiKita?</h2>
+          <p class="section-subtitle">Komitmen kami dalam mengawal setiap rupiah amanah donatur hingga ke tangan penerima manfaat.</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 16px;">
+        <div class="kpi-card">
+          <div style="font-size: 28px; margin-bottom: 8px;">🛡️</div>
+          <h3 style="font-size: 17px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 6px;">Verifikasi Ketat & Amanah</h3>
+          <p style="font-size: 13.5px; color: var(--color-text-muted); line-height: 1.5;">
+            Setiap program penggalangan dana wajib diverifikasi dokumen medis atau RAB lapangan oleh admin sebelum dibuka untuk donasi publik.
+          </p>
+        </div>
+
+        <div class="kpi-card">
+          <div style="font-size: 28px; margin-bottom: 8px;">📊</div>
+          <h3 style="font-size: 17px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 6px;">Transparansi Dana Real-Time</h3>
+          <p style="font-size: 13.5px; color: var(--color-text-muted); line-height: 1.5;">
+            Penggalang dana wajib mencatat setiap pencairan dana beserta kuitansi belanja yang dapat diakses langsung oleh donatur.
+          </p>
+        </div>
+
+        <div class="kpi-card">
+          <div style="font-size: 28px; margin-bottom: 8px;">📜</div>
+          <h3 style="font-size: 17px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 6px;">Sertifikat Donatur Digital</h3>
+          <p style="font-size: 13.5px; color: var(--color-text-muted); line-height: 1.5;">
+            Setiap transaksi sukses menerbitkan sertifikat penghargaan digital resmi berpenomoran unik yang dapat diunduh atau dicetak.
+          </p>
+        </div>
+
+        <div class="kpi-card">
+          <div style="font-size: 28px; margin-bottom: 8px;">🔒</div>
+          <h3 style="font-size: 17px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 6px;">Pilihan Donasi Anonim</h3>
+          <p style="font-size: 13.5px; color: var(--color-text-muted); line-height: 1.5;">
+            Kami menghormati keikhlasan beribadah Anda dengan opsi menyembunyikan identitas publik sebagai Hamba Allah.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand-logo" style="color: #ffffff; margin-bottom: 12px;">
+            <div class="brand-logo-icon" style="background:#52b788;">🌿</div>
+            DonasiKita
+          </div>
+          <p style="font-size: 13.5px; line-height: 1.6; color: #a7f3d0; max-width: 380px;">
+            DonasiKita adalah aplikasi E-Donation & E-Crowdfunding berbasis Python Eel dan MySQL yang dikembangkan untuk proyek UTS mata kuliah E-Application D3 Teknik Informatika.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Navigasi Cepat</h4>
+          <ul class="footer-links">
+            <li><a href="/index.html">Beranda</a></li>
+            <li><a href="/pages/campaigns.html">Katalog Campaign</a></li>
+            <li><a href="/pages/campaign_form.html">Mulai Galang Dana</a></li>
+            <li><a href="/pages/login.html">Masuk ke Akun</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-heading">Akun Demo Cepat</h4>
+          <ul class="footer-links">
+            <li><span style="color:#fff;">Admin:</span> admin@donasikita.id</li>
+            <li><span style="color:#fff;">Fundraiser:</span> lentera@donasikita.id</li>
+            <li><span style="color:#fff;">Donatur:</span> budi@donasikita.id</li>
+            <li><span style="color:#fff;">Password:</span> password123</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika. Seluruh hak cipta dilindungi.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    // Initialize Home Page Data
+    document.addEventListener('DOMContentLoaded', async () => {
+      await Auth.initNavbar();
+      loadLandingPage();
+    });
+
+    async function loadLandingPage() {
+      try {
+        const res = await API.getLandingPageData();
+        if (!res.success) {
+          Utils.showToast(res.message, 'error');
+          return;
+        }
+
+        // 1. Populate Metrics
+        document.getElementById('statTotalVolume').innerText = Utils.formatRupiah(res.metrics.total_volume);
+        document.getElementById('statSuccessDonations').innerText = res.metrics.total_donations.toLocaleString('id-ID');
+        document.getElementById('statUniqueDonors').innerText = res.metrics.total_donors.toLocaleString('id-ID');
+        document.getElementById('statActiveCampaigns').innerText = res.metrics.active_campaigns.toLocaleString('id-ID');
+
+        // 2. Populate Hero Highlight Card
+        if (res.featured_campaigns && res.featured_campaigns.length > 0) {
+          const top = res.featured_campaigns[0];
+          document.getElementById('heroCardTitle').innerText = top.title;
+          document.getElementById('heroCardDesc').innerText = top.short_description;
+          document.getElementById('heroCardProgressFill').style.width = top.progress_percentage + '%';
+          document.getElementById('heroCardCollected').innerText = Utils.formatRupiah(top.collected_amount);
+          document.getElementById('heroCardPercent').innerText = top.progress_percentage + '%';
+          document.getElementById('heroCardTarget').innerText = 'Target: ' + Utils.formatRupiah(top.target_amount);
+          document.getElementById('heroCardDays').innerText = top.days_left_text || (top.days_left + ' hari lagi');
+          document.getElementById('heroCardActionBtn').href = `/pages/campaign_detail.html?slug=${top.slug}`;
+        }
+
+        // 3. Populate Category Pills
+        const catContainer = document.getElementById('categoryPillsContainer');
+        catContainer.innerHTML = `
+          <a href="/pages/campaigns.html?category=all" class="category-pill active">Semua Kategori</a>
+        ` + res.categories.map(cat => `
+          <a href="/pages/campaigns.html?category=${cat.slug}" class="category-pill">
+            ${cat.name} (${cat.campaign_count})
+          </a>
+        `).join('');
+
+        // 4. Populate Featured Campaigns Grid
+        renderCampaignGrid(res.featured_campaigns, 'featuredCampaignsGrid');
+
+        // 5. Populate Recent Campaigns Grid
+        renderCampaignGrid(res.recent_campaigns, 'recentCampaignsGrid');
+
+      } catch (err) {
+        console.error("Landing page error:", err);
+      }
+    }
+
+    function renderCampaignGrid(campaigns, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      if (!campaigns || campaigns.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-muted);">
+            Belum ada campaign dalam kategori ini.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = campaigns.map(camp => {
+        const thumb = `/assets/images/${camp.image_url || 'campaign_default.jpg'}`;
+        return `
+          <article class="campaign-card">
+            <div class="campaign-card-thumb-wrap">
+              <img src="${thumb}" alt="${camp.title}" class="campaign-card-thumb" onerror="this.src='/assets/images/campaign_default.jpg'">
+              <span class="campaign-card-badge">${camp.category_name}</span>
+            </div>
+            <div class="campaign-card-body">
+              <div class="campaign-card-organizer">
+                <span>🏢</span> ${camp.organizer_name}
+              </div>
+              <h3 class="campaign-card-title">
+                <a href="/pages/campaign_detail.html?slug=${camp.slug}">
+                  ${camp.title}
+                </a>
+              </h3>
+              <p class="campaign-card-desc">
+                ${camp.short_description}
+              </p>
+              
+              <div class="progress-container">
+                <div class="progress-track">
+                  <div class="progress-fill" style="width: ${camp.progress_percentage}%;"></div>
+                </div>
+                <div class="progress-stats-row">
+                  <span class="progress-collected-num">${Utils.formatRupiah(camp.collected_amount)}</span>
+                  <span class="progress-percent-num">${camp.progress_percentage}%</span>
+                </div>
+                <div class="progress-meta-row">
+                  <span>Target: ${Utils.formatRupiah(camp.target_amount)}</span>
+                  <span>${camp.days_left_text || (camp.days_left + ' hari lagi')}</span>
+                </div>
+              </div>
+
+              <a href="/pages/campaign_detail.html?slug=${camp.slug}" class="btn btn-outline btn-block btn-sm" style="margin-top: 8px;">
+                Lihat Detail & Donasi
+              </a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

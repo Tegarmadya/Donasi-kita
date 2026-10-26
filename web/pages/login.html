@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk ke Akun — DonasiKita</title>
+  <meta name="description" content="Masuk ke platform DonasiKita untuk mulai berdonasi atau mengelola program penggalangan dana.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Amanah & Terpercaya</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/campaigns.html#catalogCategoryPills" class="nav-link">Kategori</a></li>
+          <li><a href="/index.html#sectionAbout" class="nav-link">Tentang Kami</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <a href="/pages/register.html" class="btn btn-outline btn-sm">Daftar Akun Baru</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="section">
+    <div class="container container-narrow">
+
+      <div class="form-card">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="font-size: 24px; font-weight: 800; color: var(--color-primary-900);">Selamat Datang Kembali</h1>
+          <p style="font-size: 14px; color: var(--color-text-muted); margin-top: 4px;">
+            Masuk untuk melanjutkan donasi atau mengelola campaign Anda.
+          </p>
+        </div>
+
+        <!-- Demo Account Quick-Fill Buttons -->
+        <div style="background-color: var(--color-surface-alt); border: 1px dashed var(--color-border-dark); border-radius: var(--radius-md); padding: 14px; margin-bottom: 24px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--color-primary-900); text-transform: uppercase; margin-bottom: 8px; text-align: center;">
+            ⚡ Demo Quick-Login (Pilih untuk Mengisi Otomatis)
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="quickFill('admin@donasikita.id', 'password123')">
+              👑 Admin
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="quickFill('lentera@donasikita.id', 'password123')">
+              🏢 Fundraiser
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="quickFill('budi@donasikita.id', 'password123')">
+              💖 Donatur
+            </button>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Alamat Email</label>
+            <input type="email" id="loginEmail" class="form-control" placeholder="nama@email.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Kata Sandi</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="Masukkan kata sandi..." required>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="btnLoginSubmit">
+            Masuk ke Akun
+          </button>
+        </form>
+
+        <div style="text-align: center; font-size: 14px; color: var(--color-text-muted); margin-top: 24px;">
+          Belum memiliki akun DonasiKita? <a href="/pages/register.html" style="color: var(--color-primary-800); font-weight: 700;">Daftar Sekarang</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    function quickFill(email, pwd) {
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = pwd;
+      Utils.showToast(`Kredensial ${email} terisi. Silakan klik Masuk.`, 'success');
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      const btn = document.getElementById('btnLoginSubmit');
+      btn.disabled = true;
+      btn.innerText = "Memverifikasi...";
+
+      try {
+        const res = await API.login(email, password);
+        if (!res.success) {
+          Utils.showToast(res.message, 'error');
+          btn.disabled = false;
+          btn.innerText = "Masuk ke Akun";
+          return;
+        }
+
+        // Save session
+        Auth.setSession(res.session_token, res.user);
+        Utils.showToast(res.message, 'success');
+
+        const redirect = Utils.getQueryParam('redirect');
+        setTimeout(() => {
+          if (redirect) {
+            window.location.href = redirect;
+          } else {
+            // Role-based default redirect
+            if (res.user.role === 'admin') {
+              window.location.href = "/pages/dashboard_admin.html";
+            } else if (res.user.role === 'fundraiser') {
+              window.location.href = "/pages/dashboard_fundraiser.html";
+            } else {
+              window.location.href = "/pages/dashboard_donatur.html";
+            }
+          }
+        }, 600);
+
+      } catch (err) {
+        console.error(err);
+        Utils.showToast("Gagal melakukan autentikasi.", "error");
+        btn.disabled = false;
+        btn.innerText = "Masuk ke Akun";
+      }
+    }
+  </script>
+</body>
+</html>

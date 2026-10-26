@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Campaign — DonasiKita</title>
+  <meta name="description" content="Informasi lengkap penggalangan dana, cerita penerima manfaat, dan laporan transparansi penyaluran donasi di DonasiKita.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Amanah & Terpercaya</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/campaigns.html#catalogCategoryPills" class="nav-link">Kategori</a></li>
+          <li><a href="/index.html#sectionAbout" class="nav-link">Tentang Kami</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="section">
+    <div class="container">
+      <div style="margin-bottom: 20px;">
+        <a href="/pages/campaigns.html" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; color: var(--color-primary-800); text-decoration: none;">
+          ← Kembali ke Jelajah Campaign
+        </a>
+      </div>
+
+      <div id="loadingPlaceholder" style="text-align: center; padding: 100px 20px; color: var(--color-text-muted);">
+        Memuat detail campaign penggalangan dana...
+      </div>
+
+      <div class="detail-grid" id="detailGrid" style="display: none;">
+        
+        <!-- Left Main Column -->
+        <div>
+          <img src="" alt="Foto Campaign" class="detail-main-img" id="detailImage" onerror="this.src='/assets/images/campaign_default.jpg'">
+
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+            <span class="status-badge badge-active" id="detailCategoryBadge">Kategori</span>
+            <span class="status-badge" id="detailStatusBadge">Aktif</span>
+          </div>
+
+          <h1 class="detail-title" id="detailTitle">Judul Campaign</h1>
+
+          <!-- Organizer Card -->
+          <div class="detail-organizer-card">
+            <div class="user-menu-avatar" style="width: 44px; height: 44px; font-size: 16px;" id="organizerAvatarInitials">
+              🏢
+            </div>
+            <div>
+              <div style="font-size: 11px; text-transform: uppercase; color: var(--color-text-subtle); font-weight: 700;">Penggalang Dana Terverifikasi</div>
+              <div style="font-size: 15px; font-weight: 700; color: var(--color-primary-900);" id="organizerName">Nama Penggalang</div>
+              <div style="font-size: 12px; color: var(--color-text-muted);">Telah melalui proses verifikasi identitas resmi DonasiKita</div>
+            </div>
+          </div>
+
+          <!-- Tab Navigation -->
+          <div class="tab-nav">
+            <button type="button" class="tab-btn active" onclick="switchTab('tabCerita', this)">Cerita Lengkap</button>
+            <button type="button" class="tab-btn" onclick="switchTab('tabDonatur', this)">
+              Donatur (<span id="tabDonorCountBadge">0</span>)
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('tabKabar', this)">
+              Kabar Terbaru (<span id="tabUpdateCountBadge">0</span>)
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('tabPenggunaan', this)">
+              Penggunaan Dana
+            </button>
+          </div>
+
+          <!-- Tab 1: Cerita Lengkap -->
+          <div class="tab-pane active" id="tabCerita">
+            <div style="background-color: var(--color-surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--color-border); line-height: 1.8; color: #2d3748; white-space: pre-line;" id="detailStory">
+              Memuat cerita...
+            </div>
+          </div>
+
+          <!-- Tab 2: Donatur Publik & Top Donatur -->
+          <div class="tab-pane" id="tabDonatur">
+            <!-- Top Donors Strip -->
+            <div style="margin-bottom: 24px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 12px;">🏆 Top Donatur Dermawan</h3>
+              <div id="topDonorsList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Recent Donors List -->
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 12px;">Doa & Dukungan Sahabat Donasi</h3>
+            <div style="background-color: var(--color-surface); border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden;" id="recentDonorsContainer">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Tab 3: Kabar Terbaru -->
+          <div class="tab-pane" id="tabKabar">
+            <div id="updatesContainer" style="display: flex; flex-direction: column; gap: 16px;">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <!-- Tab 4: Penggunaan Dana (Transparansi) -->
+          <div class="tab-pane" id="tabPenggunaan">
+            <div style="background-color: var(--color-surface); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 20px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 12px;">Ringkasan Penyaluran Dana</h3>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                <div>
+                  <div style="font-size: 12px; color: var(--color-text-muted);">Dana Terkumpul</div>
+                  <div style="font-size: 18px; font-weight: 800; color: var(--color-primary-900);" id="fundSummaryCollected">Rp0</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--color-text-muted);">Total Tersalurkan</div>
+                  <div style="font-size: 18px; font-weight: 800; color: var(--color-accent);" id="fundSummarySpent">Rp0</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--color-text-muted);">Sisa Dana Amanah</div>
+                  <div style="font-size: 18px; font-weight: 800; color: var(--color-primary-700);" id="fundSummaryRemaining">Rp0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Judul Pengeluaran</th>
+                    <th>Kategori</th>
+                    <th>Nominal</th>
+                    <th>Keterangan & Bukti</th>
+                  </tr>
+                </thead>
+                <tbody id="fundUsageTableBody">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Sticky Donation Card -->
+        <div>
+          <div class="detail-sticky-box">
+            <div style="font-size: 12.5px; color: var(--color-text-muted); margin-bottom: 4px;">Dana Terkumpul</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--color-primary-900); line-height: 1.2;" id="stickyCollected">
+              Rp0
+            </div>
+            <div style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;" id="stickyTarget">
+              dari target Rp0
+            </div>
+
+            <!-- Progress Track -->
+            <div class="progress-track" style="margin: 16px 0 10px;">
+              <div class="progress-fill" id="stickyProgressFill" style="width: 0%;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 20px;">
+              <span style="font-weight: 700; color: var(--color-primary-800);" id="stickyPercentage">0% tercapai</span>
+              <span style="font-weight: 600; color: var(--color-text-muted);" id="stickyDonorsCount">0 donatur</span>
+            </div>
+
+            <div style="padding: 12px; background-color: var(--color-surface-alt); border-radius: var(--radius-sm); border: 1px solid var(--color-border); font-size: 13px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: var(--color-text-muted);">Sisa Waktu:</span>
+              <span style="font-weight: 700; color: var(--color-text-main);" id="stickyDaysLeft">0 hari lagi</span>
+            </div>
+
+            <button type="button" class="btn btn-accent btn-lg btn-block" id="btnDetailDonate" onclick="handleDonateClick()">
+              Donasi Sekarang
+            </button>
+
+            <div style="font-size: 12px; color: var(--color-text-subtle); text-align: center; margin-top: 14px;">
+              🔒 Simulasi donasi amanah & transparan.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let currentCampaign = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await Auth.initNavbar();
+
+      const slug = Utils.getQueryParam('slug') || Utils.getQueryParam('id');
+      if (!slug) {
+        Utils.showToast("Parameter campaign tidak ditemukan.", "error");
+        setTimeout(() => window.location.href = "/pages/campaigns.html", 1500);
+        return;
+      }
+
+      await loadCampaignDetail(slug);
+    });
+
+    async function loadCampaignDetail(slugOrId) {
+      try {
+        const res = await API.getCampaignDetail(slugOrId);
+        if (!res.success) {
+          document.getElementById('loadingPlaceholder').innerHTML = `
+            <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+            <h3>${res.message || 'Campaign tidak ditemukan'}</h3>
+            <a href="/pages/campaigns.html" class="btn btn-primary btn-sm" style="margin-top: 16px;">Kembali ke Katalog</a>
+          `;
+          return;
+        }
+
+        currentCampaign = res.campaign;
+        renderDetail(currentCampaign);
+
+      } catch (e) {
+        console.error("Detail error:", e);
+      }
+    }
+
+    function renderDetail(camp) {
+      document.getElementById('loadingPlaceholder').style.display = 'none';
+      document.getElementById('detailGrid').style.display = 'grid';
+
+      // Meta & Header
+      document.title = `${camp.title} — DonasiKita`;
+      document.getElementById('detailTitle').innerText = camp.title;
+      document.getElementById('detailImage').src = `/assets/images/${camp.image_url || 'campaign_default.jpg'}`;
+      document.getElementById('detailCategoryBadge').innerText = camp.category_name;
+      
+      const statusBadge = document.getElementById('detailStatusBadge');
+      statusBadge.innerText = camp.status.toUpperCase();
+      statusBadge.className = `status-badge badge-${camp.status}`;
+
+      // Organizer
+      document.getElementById('organizerName').innerText = camp.organizer_name;
+      document.getElementById('organizerAvatarInitials').innerText = camp.organizer_name.substring(0, 2).toUpperCase();
+
+      // Sticky Box
+      document.getElementById('stickyCollected').innerText = Utils.formatRupiah(camp.collected_amount);
+      document.getElementById('stickyTarget').innerText = `dari target ${Utils.formatRupiah(camp.target_amount)}`;
+      document.getElementById('stickyProgressFill').style.width = camp.progress_percentage + '%';
+      const percentText = camp.progress_raw >= 100 ? `${camp.progress_raw}% tercapai (Target Terpenuhi! 🎉)` : `${camp.progress_raw}% tercapai`;
+      document.getElementById('stickyPercentage').innerText = percentText;
+      document.getElementById('stickyDonorsCount').innerText = `${camp.donor_count} donatur`;
+      document.getElementById('stickyDaysLeft').innerText = camp.days_left_text || `${camp.days_left} hari lagi`;
+
+      // Disable button if not active or expired
+      const btnDonate = document.getElementById('btnDetailDonate');
+      if (camp.status !== 'active') {
+        btnDonate.disabled = true;
+        btnDonate.className = 'btn btn-secondary btn-lg btn-block';
+        btnDonate.innerText = camp.status === 'completed' ? 'Campaign Telah Selesai' : 'Campaign Belum Aktif';
+      } else if (camp.is_expired) {
+        btnDonate.disabled = true;
+        btnDonate.className = 'btn btn-secondary btn-lg btn-block';
+        btnDonate.innerText = 'Batas Waktu Donasi Telah Berakhir';
+      }
+
+      // Tab 1: Cerita
+      document.getElementById('detailStory').innerText = camp.story;
+
+      // Tab 2: Donors
+      document.getElementById('tabDonorCountBadge').innerText = camp.donor_count;
+      renderDonors(camp.top_donors, camp.recent_donations);
+
+      // Tab 3: Updates
+      document.getElementById('tabUpdateCountBadge').innerText = camp.updates ? camp.updates.length : 0;
+      renderUpdates(camp.updates);
+
+      // Tab 4: Fund Usages
+      document.getElementById('fundSummaryCollected').innerText = Utils.formatRupiah(camp.collected_amount);
+      document.getElementById('fundSummarySpent').innerText = Utils.formatRupiah(camp.total_spent);
+      document.getElementById('fundSummaryRemaining').innerText = Utils.formatRupiah(camp.remaining_fund);
+      renderFundUsages(camp.fund_usages);
+    }
+
+    function renderDonors(topDonors, recentDonations) {
+      // Top Donors
+      const topContainer = document.getElementById('topDonorsList');
+      if (!topDonors || topDonors.length === 0) {
+        topContainer.innerHTML = `<div style="color:var(--color-text-muted); font-size:13px;">Belum ada donatur. Jadilah yang pertama!</div>`;
+      } else {
+        topContainer.innerHTML = topDonors.map(td => `
+          <div style="background-color: var(--color-surface); padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid #b7e4c7;">
+            <div style="font-weight: 700; font-size: 14px; color: var(--color-primary-900);">${td.donor_name}</div>
+            <div style="font-weight: 800; font-size: 15px; color: var(--color-accent); margin-top: 2px;">${Utils.formatRupiah(td.amount)}</div>
+            <div style="font-size: 11px; color: var(--color-text-subtle); margin-top: 4px;">${Utils.formatDate(td.created_at)}</div>
+          </div>
+        `).join('');
+      }
+
+      // Recent Donors
+      const recentContainer = document.getElementById('recentDonorsContainer');
+      if (!recentDonations || recentDonations.length === 0) {
+        recentContainer.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--color-text-muted);">Belum ada riwayat donasi.</div>`;
+      } else {
+        recentContainer.innerHTML = recentDonations.map(d => {
+          const initials = d.donor_name.substring(0, 2).toUpperCase();
+          return `
+            <div class="donor-card-item">
+              <div class="donor-avatar-circle">${initials}</div>
+              <div class="donor-info-col">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                  <span class="donor-name-text">${d.donor_name}</span>
+                  <span class="donor-amount-badge">${Utils.formatRupiah(d.amount)}</span>
+                </div>
+                <div style="font-size: 11px; color: var(--color-text-subtle); margin-bottom: 6px;">
+                  ${Utils.formatDate(d.created_at)}
+                </div>
+                ${d.prayer_message ? `<div class="donor-prayer-quote">"${d.prayer_message}"</div>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function renderUpdates(updates) {
+      const container = document.getElementById('updatesContainer');
+      if (!updates || updates.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 40px; text-align: center; background-color: var(--color-surface); border-radius: var(--radius-md); border: 1px dashed var(--color-border); color: var(--color-text-muted);">
+            Belum ada kabar terbaru dari penggalang dana.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = updates.map(u => `
+        <div style="background-color: var(--color-surface); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <div style="font-size: 12px; color: var(--color-text-subtle); font-weight: 600; margin-bottom: 4px;">
+            📅 ${Utils.formatDate(u.created_at)}
+          </div>
+          <h4 style="font-size: 16px; font-weight: 700; color: var(--color-primary-900); margin-bottom: 10px;">
+            ${u.title}
+          </h4>
+          <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-main); white-space: pre-line;">
+            ${u.content}
+          </p>
+        </div>
+      `).join('');
+    }
+
+    function renderFundUsages(usages) {
+      const tbody = document.getElementById('fundUsageTableBody');
+      if (!usages || usages.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--color-text-muted);">Belum ada laporan pengeluaran dana yang tercatat.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = usages.map(fu => `
+        <tr>
+          <td>${Utils.formatDate(fu.expense_date)}</td>
+          <td><strong>${fu.expense_title}</strong></td>
+          <td><span class="status-badge" style="background:#e0f2fe; color:#0369a1;">${fu.expense_category}</span></td>
+          <td style="font-weight:700; color:var(--color-primary-900);">${Utils.formatRupiah(fu.amount)}</td>
+          <td>
+            <div>${fu.description}</div>
+            <small style="color:var(--color-text-subtle);">📎 ${fu.proof_document || 'Nota bukti terlampir'}</small>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function handleDonateClick() {
+      if (!currentCampaign) return;
+      if (!Auth.isLoggedIn()) {
+        Utils.showToast("Silakan login terlebih dahulu untuk melakukan donasi.", "warning");
+        setTimeout(() => {
+          window.location.href = `/pages/login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+        }, 800);
+        return;
+      }
+      window.location.href = `/pages/donate.html?id=${currentCampaign.id}`;
+    }
+  </script>
+</body>
+</html>

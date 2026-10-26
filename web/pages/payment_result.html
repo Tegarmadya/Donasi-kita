@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status Pembayaran — DonasiKita</title>
+  <meta name="description" content="Bukti status transaksi donasi elektronik DonasiKita.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Amanah & Terpercaya</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/campaigns.html#catalogCategoryPills" class="nav-link">Kategori</a></li>
+          <li><a href="/index.html#sectionAbout" class="nav-link">Tentang Kami</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="section">
+    <div class="container container-narrow">
+
+      <div class="form-card" style="text-align: center; padding: 48px 32px;" id="resultCard">
+        <div id="resultIcon" style="font-size: 54px; margin-bottom: 14px;">⏳</div>
+        <h1 style="font-size: 24px; font-weight: 800; color: var(--color-primary-900); margin-bottom: 8px;" id="resultHeading">
+          Memeriksa Status Transaksi...
+        </h1>
+        <p style="font-size: 14.5px; color: var(--color-text-muted); max-width: 460px; margin: 0 auto 24px;" id="resultMessage">
+          Mohon tunggu sebentar, sistem sedang menyinkronkan status dengan database.
+        </p>
+
+        <!-- Receipt Details Box -->
+        <div style="background-color: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 20px; text-align: left; margin-bottom: 28px; font-size: 13.5px;" id="receiptBox">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--color-text-subtle);">Nominal Donasi:</span>
+            <strong style="color: var(--color-primary-900); font-size: 16px;" id="recAmount">-</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--color-text-subtle);">Program Campaign:</span>
+            <strong style="color: var(--color-text-main); max-width: 300px; text-align: right;" id="recCampaign">-</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--color-text-subtle);">Kode Transaksi:</span>
+            <span style="font-family: monospace; font-weight: 700;" id="recDonationCode">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--color-text-subtle);">Nama Donatur:</span>
+            <span id="recDonorName">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--color-text-subtle);">Metode Pembayaran:</span>
+            <span id="recMethod">-</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--color-text-subtle);">Status Akhir:</span>
+            <span class="status-badge" id="recStatus">-</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; flex-direction: column; gap: 10px;" id="resultActionButtons">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await Auth.initNavbar();
+
+      const code = Utils.getQueryParam('code');
+      if (!code) {
+        Utils.showToast("Kode transaksi tidak ditemukan.", "error");
+        setTimeout(() => window.location.href = "/index.html", 1500);
+        return;
+      }
+
+      await checkStatus(code);
+    });
+
+    async function checkStatus(donationCode) {
+      try {
+        const res = await API.getDonationByCode(donationCode);
+        if (!res.success) {
+          document.getElementById('resultHeading').innerText = "Data Transaksi Tidak Ditemukan";
+          document.getElementById('resultMessage').innerText = res.message;
+          document.getElementById('receiptBox').style.display = 'none';
+          return;
+        }
+
+        const don = res.donation;
+
+        // Populate receipt
+        document.getElementById('recAmount').innerText = Utils.formatRupiah(don.amount);
+        document.getElementById('recCampaign').innerText = don.campaign_title;
+        document.getElementById('recDonationCode').innerText = don.donation_code;
+        document.getElementById('recDonorName').innerText = don.is_anonymous ? "Hamba Allah (Anonim)" : don.donor_name;
+        document.getElementById('recMethod').innerText = `${don.payment_method.toUpperCase()} (${don.payment_channel})`;
+
+        const statusEl = document.getElementById('recStatus');
+        statusEl.innerText = don.donation_status.toUpperCase();
+        statusEl.className = `status-badge badge-${don.donation_status}`;
+
+        const actions = document.getElementById('resultActionButtons');
+
+        if (don.donation_status === 'success') {
+          document.getElementById('resultIcon').innerText = '🎉';
+          document.getElementById('resultHeading').innerText = 'Alhamdulillah, Pembayaran Donasi Berhasil!';
+          document.getElementById('resultMessage').innerText = 'Terima kasih atas kepedulian dan kedermawanan Anda. Donasi telah tercatat ke dalam target campaign dan sertifikat resmi telah diterbitkan.';
+
+          actions.innerHTML = `
+            ${don.certificate_number ? `
+              <a href="/pages/certificate.html?cert=${don.certificate_number}" class="btn btn-accent btn-lg" id="btnViewCert">
+                📜 Unduh / Lihat Sertifikat Donasi Digital
+              </a>
+            ` : ''}
+            <a href="/pages/campaign_detail.html?slug=${don.campaign_slug}" class="btn btn-primary" id="btnBackCampaign">
+              Lihat Perkembangan Campaign
+            </a>
+            <a href="/pages/dashboard_donatur.html" class="btn btn-secondary" id="btnMyDonations">
+              Riwayat Donasi Saya
+            </a>
+          `;
+
+        } else if (don.donation_status === 'failed') {
+          document.getElementById('resultIcon').innerText = '❌';
+          document.getElementById('resultHeading').innerText = 'Simulasi Pembayaran Dinyatakan Gagal';
+          document.getElementById('resultMessage').innerText = 'Transaksi ini dibatalkan sesuai pilihan simulasi. Dana tidak ditambahkan ke saldo campaign, dan saldo Anda tidak berkurang.';
+
+          actions.innerHTML = `
+            <a href="/pages/donate.html?id=${don.campaign_id}" class="btn btn-primary">
+              Coba Lakukan Donasi Lagi
+            </a>
+            <a href="/pages/campaign_detail.html?slug=${don.campaign_slug}" class="btn btn-secondary">
+              Kembali ke Campaign
+            </a>
+          `;
+
+        } else {
+          // Pending
+          document.getElementById('resultIcon').innerText = '⏳';
+          document.getElementById('resultHeading').innerText = 'Menunggu Pembayaran';
+          document.getElementById('resultMessage').innerText = 'Silakan selesaikan simulasi pembayaran untuk mengonfirmasi transaksi.';
+
+          actions.innerHTML = `
+            <a href="/pages/payment_simulation.html?code=${don.donation_code}" class="btn btn-primary btn-lg">
+              Lanjutkan Simulasi Pembayaran →
+            </a>
+          `;
+        }
+
+      } catch (err) {
+        console.error("Result check error:", err);
+      }
+    }
+  </script>
+</body>
+</html>

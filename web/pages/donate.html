@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulir Donasi Elektronik — DonasiKita</title>
+  <meta name="description" content="Salurkan donasi terbaik Anda dengan mudah, amanah, dan transparan melalui DonasiKita.">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Amanah & Terpercaya</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/campaigns.html#catalogCategoryPills" class="nav-link">Kategori</a></li>
+          <li><a href="/index.html#sectionAbout" class="nav-link">Tentang Kami</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="section">
+    <div class="container container-narrow">
+      <div style="margin-bottom: 16px;">
+        <a href="#" onclick="if(campaignId) { window.location.href='/pages/campaign_detail.html?id='+campaignId; } else { history.back(); } return false;" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13.5px; color: var(--color-primary-800); text-decoration: none;">
+          ← Kembali ke Detail Campaign
+        </a>
+      </div>
+
+      <!-- Campaign Brief Banner -->
+      <div style="background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 24px;" id="campaignBriefCard">
+        <img src="" id="briefThumb" style="width: 72px; height: 52px; object-fit: cover; border-radius: var(--radius-md);" onerror="this.src='/assets/images/campaign_default.jpg'">
+        <div>
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--color-text-subtle); font-weight: 700;">Anda Akan Berdonasi Untuk:</div>
+          <h2 style="font-size: 16px; font-weight: 700; color: var(--color-primary-900); margin-top: 2px;" id="briefTitle">Memuat judul campaign...</h2>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h1 style="font-size: 22px; font-weight: 800; color: var(--color-primary-900); margin-bottom: 20px;">
+          Pilih Nominal & Metode Donasi
+        </h1>
+
+        <form id="donationForm" onsubmit="handleFormSubmit(event)">
+
+          <!-- 1. Nominal Presets -->
+          <div class="form-group">
+            <label class="form-label">Pilih Nominal Donasi Cepat</label>
+            <div class="preset-grid">
+              <button type="button" class="preset-btn" onclick="selectPreset(25000, this)">Rp25.000</button>
+              <button type="button" class="preset-btn selected" onclick="selectPreset(50000, this)">Rp50.000</button>
+              <button type="button" class="preset-btn" onclick="selectPreset(100000, this)">Rp100.000</button>
+              <button type="button" class="preset-btn" onclick="selectPreset(250000, this)">Rp250.000</button>
+              <button type="button" class="preset-btn" onclick="selectPreset(500000, this)">Rp500.000</button>
+              <button type="button" class="preset-btn" onclick="selectPreset(1000000, this)">Rp1.000.000</button>
+            </div>
+            
+            <label class="form-label" for="customNominalInput">Atau Masukkan Nominal Lainnya (Rp)</label>
+            <input type="number" id="customNominalInput" class="form-control" min="10000" step="5000" value="50000" oninput="handleNominalInput(this)" required>
+            <div class="form-hint">Minimal nominal donasi adalah Rp10.000.</div>
+          </div>
+
+          <!-- 2. Anonymous Option -->
+          <div class="form-group" style="background-color: var(--color-surface-alt); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; font-size: 14px;">
+              <input type="checkbox" id="anonymousCheckbox" style="width: 18px; height: 18px;">
+              <span>Sembunyikan nama saya (Donasi sebagai <strong>Hamba Allah</strong>)</span>
+            </label>
+            <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 4px; padding-left: 28px;">
+              Identitas asli Anda tetap tersimpan di akun Anda dan pada sertifikat pribadi, tetapi disamarkan dari daftar publik.
+            </div>
+          </div>
+
+          <!-- 3. Prayer Message -->
+          <div class="form-group">
+            <label class="form-label" for="prayerInput">Doa atau Pesan Kebaikan (Opsional)</label>
+            <textarea id="prayerInput" class="form-control" rows="3" placeholder="Tuliskan doa atau kata-kata penyemangat untuk penerima manfaat..."></textarea>
+          </div>
+
+          <!-- 4. Payment Method -->
+          <div class="form-group">
+            <label class="form-label">Pilih Metode Pembayaran Simulasi</label>
+            <div class="payment-channel-grid">
+              <div class="payment-method-card selected" onclick="selectChannel('bank_transfer', 'BCA Virtual Account', this)">
+                <div style="font-size: 18px;">🏦</div>
+                <div style="font-weight: 700; font-size: 13.5px; margin-top: 4px;">BCA Virtual Account</div>
+                <div style="font-size: 11px; color: var(--color-text-muted);">Transfer Bank</div>
+              </div>
+
+              <div class="payment-method-card" onclick="selectChannel('bank_transfer', 'Mandiri Livin Virtual Account', this)">
+                <div style="font-size: 18px;">🏦</div>
+                <div style="font-weight: 700; font-size: 13.5px; margin-top: 4px;">Mandiri Virtual Account</div>
+                <div style="font-size: 11px; color: var(--color-text-muted);">Transfer Bank</div>
+              </div>
+
+              <div class="payment-method-card" onclick="selectChannel('qris', 'QRIS Dinamis', this)">
+                <div style="font-size: 18px;">📱</div>
+                <div style="font-weight: 700; font-size: 13.5px; margin-top: 4px;">QRIS Simulasi</div>
+                <div style="font-size: 11px; color: var(--color-text-muted);">Scan QR Cepat</div>
+              </div>
+
+              <div class="payment-method-card" onclick="selectChannel('ewallet', 'GoPay', this)">
+                <div style="font-size: 18px;">💳</div>
+                <div style="font-weight: 700; font-size: 13.5px; margin-top: 4px;">GoPay</div>
+                <div style="font-size: 11px; color: var(--color-text-muted);">Dompet Digital</div>
+              </div>
+
+              <div class="payment-method-card" onclick="selectChannel('ewallet', 'OVO Cash', this)">
+                <div style="font-size: 18px;">💳</div>
+                <div style="font-weight: 700; font-size: 13.5px; margin-top: 4px;">OVO</div>
+                <div style="font-size: 11px; color: var(--color-text-muted);">Dompet Digital</div>
+              </div>
+
+              <div class="payment-method-card" onclick="selectChannel('ewallet', 'Dana', this)">
+                <div style="font-size: 18px;">💳</div>
+                <div style="font-weight: 700; font-size: 13.5px; margin-top: 4px;">Dana</div>
+                <div style="font-size: 11px; color: var(--color-text-muted);">Dompet Digital</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Calculation Strip -->
+          <div style="background-color: #f0fdf4; border: 1.5px solid #b7e4c7; border-radius: var(--radius-md); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+              <div style="font-size: 12px; color: var(--color-primary-800); font-weight: 600;">TOTAL SIMULASI DONASI</div>
+              <div style="font-size: 12px; color: var(--color-text-muted);" id="summaryChannelDisplay">BCA Virtual Account</div>
+            </div>
+            <div style="font-size: 24px; font-weight: 800; color: var(--color-primary-900);" id="summaryAmountDisplay">
+              Rp50.000
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-accent btn-lg btn-block" id="btnSubmitDonation">
+            Lanjut ke Simulasi Pembayaran →
+          </button>
+
+          <div style="text-align: center; font-size: 12px; color: var(--color-text-subtle); margin-top: 14px;">
+            ⚠️ Transaksi ini menggunakan modul simulasi pembayaran non-transaksional untuk kebutuhan akademik UTS.
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    let campaignId = null;
+    let selectedMethod = 'bank_transfer';
+    let selectedChannel = 'BCA Virtual Account';
+    let currentAmount = 50000;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Require login to donate
+      if (!Auth.guard()) return;
+      await Auth.initNavbar();
+
+      campaignId = Utils.getQueryParam('id');
+      if (!campaignId) {
+        Utils.showToast("Campaign tidak ditentukan.", "error");
+        setTimeout(() => window.location.href = "/pages/campaigns.html", 1500);
+        return;
+      }
+
+      await loadCampaignInfo(campaignId);
+    });
+
+    async function loadCampaignInfo(id) {
+      try {
+        const res = await API.getCampaignDetail(id);
+        if (!res.success) {
+          Utils.showToast("Gagal memuat campaign.", "error");
+          return;
+        }
+
+        const camp = res.campaign;
+        document.getElementById('briefTitle').innerText = camp.title;
+        document.getElementById('briefThumb').src = `/assets/images/${camp.image_url || 'campaign_default.jpg'}`;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function selectPreset(amount, btn) {
+      currentAmount = amount;
+      document.getElementById('customNominalInput').value = amount;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateSummary();
+    }
+
+    function handleNominalInput(input) {
+      currentAmount = Number(input.value) || 0;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+      updateSummary();
+    }
+
+    function selectChannel(method, channel, el) {
+      selectedMethod = method;
+      selectedChannel = channel;
+      document.querySelectorAll('.payment-method-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      updateSummary();
+    }
+
+    function updateSummary() {
+      document.getElementById('summaryAmountDisplay').innerText = Utils.formatRupiah(currentAmount);
+      document.getElementById('summaryChannelDisplay').innerText = selectedChannel;
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+
+      if (currentAmount < 10000) {
+        Utils.showToast("Nominal donasi minimal Rp10.000.", "error");
+        return;
+      }
+
+      const isAnonymous = document.getElementById('anonymousCheckbox').checked;
+      const prayerMessage = document.getElementById('prayerInput').value.trim();
+      const token = Auth.getToken();
+
+      const btn = document.getElementById('btnSubmitDonation');
+      btn.disabled = true;
+      btn.innerText = "Menginisiasi Transaksi...";
+
+      try {
+        const res = await API.createDonation(
+          token,
+          campaignId,
+          currentAmount,
+          isAnonymous,
+          prayerMessage,
+          selectedMethod,
+          selectedChannel
+        );
+
+        if (!res.success) {
+          Utils.showToast(res.message, "error");
+          btn.disabled = false;
+          btn.innerText = "Lanjut ke Simulasi Pembayaran →";
+          return;
+        }
+
+        Utils.showToast("Donasi tercatat! Mengalihkan ke pembayaran...", "success");
+        setTimeout(() => {
+          window.location.href = `/pages/payment_simulation.html?code=${res.donation_code}`;
+        }, 600);
+
+      } catch (err) {
+        console.error(err);
+        Utils.showToast("Terjadi kesalahan sistem.", "error");
+        btn.disabled = false;
+        btn.innerText = "Lanjut ke Simulasi Pembayaran →";
+      }
+    }
+  </script>
+</body>
+</html>

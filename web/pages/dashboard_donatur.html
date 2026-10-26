@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Donatur — DonasiKita</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="text/javascript" src="/eel.js"></script>
+</head>
+<body>
+
+  <!-- Site Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="/index.html" class="brand-logo">
+          <div class="brand-logo-icon">🌿</div>
+          <div>
+            DonasiKita
+            <span class="brand-tagline-sub">Portal Donatur</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="/index.html" class="nav-link">Beranda</a></li>
+          <li><a href="/pages/campaigns.html" class="nav-link">Jelajah Campaign</a></li>
+          <li><a href="/pages/dashboard_donatur.html" class="nav-link active">Donasi Saya</a></li>
+        </ul>
+
+        <div class="nav-actions" id="navbarUserActions"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="section" style="padding-top: 24px;">
+    <div class="container">
+
+      <!-- Header Row -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h1 style="font-size: 26px; font-weight: 800; color: var(--color-primary-900);">
+            Riwayat Kebaikan Saya
+          </h1>
+          <p style="font-size: 14px; color: var(--color-text-muted);">
+            Pantau seluruh catatan transaksi donasi, status pembayaran, dan sertifikat digital penghargaan Anda.
+          </p>
+        </div>
+
+        <div>
+          <a href="/pages/campaigns.html" class="btn btn-primary">
+            💖 Salurkan Donasi Baru
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI Stat Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Donasi Tersalurkan</div>
+          <div class="kpi-value" id="kpiDonorTotal">Rp0</div>
+          <div class="kpi-sub" id="kpiDonorSuccessCount">0 transaksi sukses</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Program Didukung</div>
+          <div class="kpi-value" id="kpiDonorPrograms">0</div>
+          <div class="kpi-sub">campaign kemanusiaan</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Sertifikat Diterbitkan</div>
+          <div class="kpi-value" id="kpiDonorCerts" style="color: var(--color-primary-700);">0</div>
+          <div class="kpi-sub">bukti donatur resmi</div>
+        </div>
+      </div>
+
+      <!-- Donations Table Card -->
+      <div style="background-color: var(--color-surface); border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: 24px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 style="font-size: 18px; font-weight: 700; color: var(--color-primary-900);">Daftar Transaksi Donasi</h2>
+          <span style="font-size: 13px; color: var(--color-text-muted);" id="myDonationsCount">0 Transaksi</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Kode Donasi</th>
+                <th>Tanggal</th>
+                <th>Program Campaign</th>
+                <th>Nominal</th>
+                <th>Metode / Saluran</th>
+                <th>Status</th>
+                <th>Sertifikat / Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="myDonationsTbody">
+              <tr><td colspan="7" style="text-align: center; padding: 40px;">Memuat riwayat donasi...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+        <div>&copy; 2026 DonasiKita — E-Application D3 Teknik Informatika.</div>
+        <div>Simulasi Pembayaran Non-Transaksional</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.guard()) return;
+      await Auth.initNavbar();
+
+      await loadDonorHistory();
+    });
+
+    async function loadDonorHistory() {
+      const token = Auth.getToken();
+      try {
+        const res = await API.getUserDonations(token);
+        const tbody = document.getElementById('myDonationsTbody');
+
+        if (!res.success || !res.donations || res.donations.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 40px; color: var(--color-text-muted);">
+                Anda belum pernah melakukan donasi. <a href="/pages/campaigns.html" style="font-weight:700; color:var(--color-primary-800);">Mulai Donasi Pertama Anda</a>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const dons = res.donations;
+        document.getElementById('myDonationsCount').innerText = `${dons.length} Transaksi`;
+
+        // Calculate KPI
+        let totalSuccessAmt = 0;
+        let successCount = 0;
+        let certCount = 0;
+        const uniqueCamps = new Set();
+
+        dons.forEach(d => {
+          if (d.status === 'success') {
+            totalSuccessAmt += d.amount;
+            successCount++;
+            uniqueCamps.add(d.campaign_id);
+            if (d.certificate_number) certCount++;
+          }
+        });
+
+        document.getElementById('kpiDonorTotal').innerText = Utils.formatRupiah(totalSuccessAmt);
+        document.getElementById('kpiDonorSuccessCount').innerText = `${successCount} transaksi sukses`;
+        document.getElementById('kpiDonorPrograms').innerText = uniqueCamps.size;
+        document.getElementById('kpiDonorCerts').innerText = certCount;
+
+        tbody.innerHTML = dons.map(d => `
+          <tr>
+            <td><strong style="font-family: monospace;">${d.donation_code}</strong></td>
+            <td>${Utils.formatDate(d.created_at)}</td>
+            <td>
+              <strong><a href="/pages/campaign_detail.html?slug=${d.campaign_slug}" target="_blank">${d.campaign_title}</a></strong>
+              ${d.is_anonymous ? `<div style="font-size:11px; color:var(--color-text-subtle);">🎭 Donasi Anonim (Hamba Allah)</div>` : ''}
+            </td>
+            <td><strong style="color:var(--color-primary-900);">${Utils.formatRupiah(d.amount)}</strong></td>
+            <td>${d.payment_method || '-'} (${d.payment_channel || '-'})</td>
+            <td><span class="status-badge badge-${d.status}">${d.status}</span></td>
+            <td>
+              ${d.status === 'success' && d.certificate_number ? `
+                <a href="/pages/certificate.html?cert=${d.certificate_number}" target="_blank" class="btn btn-accent btn-sm">
+                  📜 Sertifikat
+                </a>
+              ` : (d.status === 'pending' ? `
+                <a href="/pages/payment_simulation.html?code=${d.donation_code}" class="btn btn-primary btn-sm">
+                  Bayar Sekarang
+                </a>
+              ` : `
+                <a href="/pages/donate.html?id=${d.campaign_id}" class="btn btn-secondary btn-sm">
+                  Donasi Lagi
+                </a>
+              `)}
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error("Donor history error:", err);
+      }
+    }
+  </script>
+</body>
+</html>
